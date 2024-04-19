@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "751122160940",
+    "project_id": "projeto-sa-b15e2",
+    "storage_bucket": "projeto-sa-b15e2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:751122160940:android:cf270b2a8451f703f5a089",
+        "android_client_info": {
+          "package_name": "com.example.saapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCYULMoDzRYAigZqkt8IYejAJ8eqTEglY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
