@@ -1,15 +1,32 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
+# Arquivos e pastas do sistema de build
+SAApp/build/
+SAApp/captures/
+
+# Arquivos locais de configuração
+SAApp/local.properties
+SAApp/.idea/workspace.xml
+SAApp/.idea/libraries
+SAApp/.idea/modules.xml
+SAApp/.idea/navEditor.xml
+SAApp/.idea/inspectionProfiles
+SAApp/*.iml
+SAApp/.idea
+SAApp/.DS_Store
+
+# Pasta de cache local do Gradle
+SAApp/.gradle/
+
+# Arquivos binários de output
+SAApp/*.apk
+SAApp/*.aar
+SAApp/*.jar
+
+# Arquivos de log
+SAApp/*.log
+
+# Chaves de assinatura
+SAApp/*.jks
+SAApp/*.keystore
+
+# Pasta de teste de cobertura
+SAApp/coverage/
