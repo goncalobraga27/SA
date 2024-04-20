@@ -3,6 +3,7 @@
     <string name="title_home">Home</string>
     <string name="title_settings">Settings</string>
     <string name="title_profile">Profile</string>
+    <string name="profile">PROFILE</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
@@ -22,4 +23,8 @@
     <string name="forgot_password">Forgot Password?</string>
     <string name="forgot_password_title">FORGOT PASSWORD</string>
     <string name="back">Back</string>
+    <string name="points">Points</string>
+    <string name="logout">Logout</string>
+    <string name="go_premium">Go Premium</string>
+    <string name="reset_password">Reset Password</string>
 </resources>
