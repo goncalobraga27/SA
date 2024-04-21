@@ -1,12 +1,15 @@
 package com.example.saapp.ui.home;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +17,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -38,22 +44,37 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
+import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPhotoRequest;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     public final static int INITIAL_CAMERA_ZOOM = 15;
     public final static int REQUEST_LOCATION_UPDATES_INTERVAL = 1000 * 10;
+    public final static List<Place.Field> PLACES_FIELDS = Arrays.asList(
+            Place.Field.ID,
+            Place.Field.NAME,
+            Place.Field.ADDRESS,
+            Place.Field.LAT_LNG,
+            Place.Field.PHOTO_METADATAS,
+            Place.Field.TYPES,
+            Place.Field.PHONE_NUMBER,
+            Place.Field.RATING,
+            Place.Field.PRICE_LEVEL);
     private FragmentHomeBinding binding;
     private GoogleMap googleMap;
     private FusedLocationProviderClient fusedLocationClient;
@@ -119,11 +140,22 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment) getChildFragmentManager().findFragmentById(R.id.autocomplete_fragment);
         if (autocompleteFragment != null) {
-            autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
+            autocompleteFragment.setPlaceFields(PLACES_FIELDS);
             autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
                 @Override
                 public void onPlaceSelected(@NonNull Place place) {
+                    googleMap.clear();
 
+                    if (place.getLatLng() != null) {
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), INITIAL_CAMERA_ZOOM));
+
+                        MarkerOptions markerOptions = new MarkerOptions();
+                        markerOptions.position(place.getLatLng());
+                        markerOptions.title(place.getName());
+                        googleMap.addMarker(markerOptions);
+
+                        showBottomSheetPlaceDetails(place);
+                    }
                 }
 
                 @Override
@@ -133,6 +165,56 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             });
         }
 
+    }
+
+    private void showBottomSheetPlaceDetails(Place place) {
+        View bottomSheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_place_details, null);
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
+        bottomSheetDialog.setContentView(bottomSheetView);
+
+        TextView placeNameTextView = bottomSheetView.findViewById(R.id.place_name);
+        TextView placeAddressTextView = bottomSheetView.findViewById(R.id.place_address);
+        TextView placePhoneNumberTextView = bottomSheetView.findViewById(R.id.place_phone_number);
+        TextView placeRatingTextView = bottomSheetView.findViewById(R.id.place_rating);
+        TextView placePriceLevelTextView = bottomSheetView.findViewById(R.id.place_price_level);
+        TextView placeTypesTextView = bottomSheetView.findViewById(R.id.place_types);
+        ImageView placePhotoImageView = bottomSheetView.findViewById(R.id.place_photo);
+
+        placeNameTextView.setText(place.getName());
+        placeAddressTextView.setText(place.getAddress());
+        placePhoneNumberTextView.setText(place.getPhoneNumber());
+        placeRatingTextView.setText(requireContext().getString(R.string.rating, place.getRating()));
+        placePriceLevelTextView.setText(requireContext().getString(R.string.price_level, place.getPriceLevel()));
+
+        if (place.getPlaceTypes() != null) {
+            List<String> typesList = place.getPlaceTypes();
+            placeTypesTextView.setText(TextUtils.join(", ", typesList));
+        }
+
+        if (place.getPhotoMetadatas() != null && !place.getPhotoMetadatas().isEmpty()) {
+            PhotoMetadata photoMetadata = place.getPhotoMetadatas().get(0);
+            FetchPhotoRequest photoRequest = FetchPhotoRequest.builder(photoMetadata)
+                    .setMaxWidth(500)
+                    .build();
+
+            PlacesClient placesClient = Places.createClient(requireContext());
+            placesClient.fetchPhoto(photoRequest).addOnSuccessListener((fetchPhotoResponse) -> {
+                Bitmap bitmap = fetchPhotoResponse.getBitmap();
+                placePhotoImageView.setImageBitmap(bitmap);
+            }).addOnFailureListener((exception) -> {
+                if (exception instanceof ApiException) {
+                    ApiException apiException = (ApiException) exception;
+                    Log.e("PlaceError", "Place not found: " + apiException.getStatusCode());
+                }
+            });
+        }
+
+        Button closeButton = bottomSheetView.findViewById(R.id.close_bottom_sheet);
+        closeButton.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+        });
+
+        bottomSheetDialog.show();
     }
 
     @Override

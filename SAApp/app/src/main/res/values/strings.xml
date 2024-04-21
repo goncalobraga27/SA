@@ -14,7 +14,7 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="username">Username</string>
-    <string name="password">Password</string>
+        <string name="password">Password</string>
     <string name="login">LOGIN</string>
     <string name="create_account">Create Account</string>
     <string name="sign_up">SIGN UP</string>
@@ -32,5 +32,13 @@
     <string name="normal">Normal</string>
     <string name="terrain">Terrain</string>
     <string name="map_type_menu">map type menu</string>
-    <string name="search_for_places">Search for places...</string>
+    <string name="search_for_places">Search for places…</string>
+    <string name="place_name">Place Name</string>
+    <string name="address">Address</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="rating">Rating: %1$.1f</string>
+    <string name="price_level">Price Level: %1$d</string>
+    <string name="types">Types</string>
+    <string name="place_photo">place photo</string>
+    <string name="close">Close</string>
 </resources>
