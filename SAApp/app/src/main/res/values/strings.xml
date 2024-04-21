@@ -27,4 +27,10 @@
     <string name="logout">Logout</string>
     <string name="go_premium">Go Premium</string>
     <string name="reset_password">Reset Password</string>
+    <string name="satellite">Satellite</string>
+    <string name="hybrid">Hybrid</string>
+    <string name="normal">Normal</string>
+    <string name="terrain">Terrain</string>
+    <string name="map_type_menu">map type menu</string>
+    <string name="search_for_places">Search for places...</string>
 </resources>
