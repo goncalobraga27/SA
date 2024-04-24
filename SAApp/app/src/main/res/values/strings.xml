@@ -41,4 +41,6 @@
     <string name="types">Types</string>
     <string name="place_photo">place photo</string>
     <string name="close">Close</string>
+    <string name="admin">ADMIN</string>
+    <string name="add_places">Add New Place</string>
 </resources>
