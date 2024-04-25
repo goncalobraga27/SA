@@ -26,6 +26,7 @@ activityCompose = "1.9.0"
 composeBom = "2024.04.01"
 googleServices = "4.4.1"
 coordinatorlayout = "1.2.0"
+firebaseFirestore = "24.11.1"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -60,6 +61,7 @@ ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 material3 = { group = "androidx.compose.material3", name = "material3" }
 google-services = { group = "com.google.gms", name = "google-services", version.ref = "googleServices" }
 coordinatorlayout = { group = "androidx.coordinatorlayout", name = "coordinatorlayout", version.ref = "coordinatorlayout" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

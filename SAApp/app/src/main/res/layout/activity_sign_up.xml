@@ -36,18 +36,18 @@
 
 
             <EditText
+                android:id="@+id/editTextEmailSignUp"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:id="@+id/editTextEmailSignUp"
-                android:background="@drawable/custom_edittext"
                 android:layout_marginTop="40dp"
-                android:padding="8dp"
-                android:hint="@string/prompt_email"
+                android:autofillHints="emailAddress"
+                android:background="@drawable/custom_edittext"
                 android:drawableStart="@drawable/baseline_person_24"
                 android:drawablePadding="8dp"
-                android:textColor="@color/black"
-                android:autofillHints="emailAddress"
-                android:inputType="textEmailAddress" />
+                android:hint="@string/prompt_email"
+                android:inputType="textEmailAddress"
+                android:padding="8dp"
+                android:textColor="@color/black" />
 
             <EditText
                 android:layout_width="match_parent"
@@ -62,6 +62,19 @@
                 android:textColor="@color/black"
                 android:autofillHints="password"
                 android:inputType="textPassword" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:id="@+id/editRoleSignUp"
+                android:background="@drawable/custom_edittext"
+                android:layout_marginTop="20dp"
+                android:padding="8dp"
+                android:hint="@string/role"
+                android:drawablePadding="8dp"
+                android:textColor="@color/black"
+                android:autofillHints="role"
+                android:inputType="text" />
 
             <Button
                 android:layout_width="match_parent"

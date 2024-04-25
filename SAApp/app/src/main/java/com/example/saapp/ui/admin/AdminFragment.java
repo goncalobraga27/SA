@@ -40,6 +40,7 @@ public class AdminFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         AdminViewModel adminViewModel = new ViewModelProvider(this).get(AdminViewModel.class);
+        adminViewModel.setPlacesClient(placesClient);
 
         binding = FragmentAdminBinding.inflate(inflater, container, false);
         View root = binding.getRoot();

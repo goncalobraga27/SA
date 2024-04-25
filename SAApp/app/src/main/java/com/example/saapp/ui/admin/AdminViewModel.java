@@ -1,6 +1,8 @@
 package com.example.saapp.ui.admin;
 
 
+import static androidx.core.content.ContentProviderCompat.requireContext;
+
 import android.content.Context;
 
 
@@ -21,9 +23,12 @@ import java.util.List;
 public class AdminViewModel extends ViewModel {
     private PlacesClient placesClient;
 
-    public AdminViewModel(Context context) {
-        placesClient = Places.createClient(context);
+    public AdminViewModel() {
     }
+    public void setPlacesClient(PlacesClient placesClient) {
+        this.placesClient = placesClient;
+    }
+
     public void addPlace(String location) {
         Place place = Place.builder()
                 .setName(location)
