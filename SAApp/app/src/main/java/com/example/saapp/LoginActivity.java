@@ -52,11 +52,7 @@ public class LoginActivity extends AppCompatActivity {
                                                     String role = documentSnapshot.getString("role");
                                                     if ("admin".equals(role)) {
                                                         Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                                                        FragmentManager fragmentManager = getSupportFragmentManager();
-                                                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                                                        fragmentTransaction.replace(R.id.fragment_admin, new AdminFragment());
-                                                        fragmentTransaction.commit();
-                                                        startActivity(new Intent(LoginActivity.this, MainActivity.class ));
+                                                        startActivity(new Intent(LoginActivity.this, MainActivityAdmin.class ));
                                                         finish();
                                                     } else {
                                                         Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
