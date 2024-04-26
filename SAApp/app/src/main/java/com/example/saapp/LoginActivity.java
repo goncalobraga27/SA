@@ -1,5 +1,6 @@
 package com.example.saapp;
 
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,7 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.saapp.ui.admin.AdminFragment;
@@ -43,29 +44,9 @@ public class LoginActivity extends AppCompatActivity {
                 if (!pass.isEmpty()) {
                     auth.signInWithEmailAndPassword(email, pass)
                             .addOnSuccessListener(authResult -> {
-                                FirebaseUser user = auth.getCurrentUser();
-                                if (user != null){
-                                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-                                    db.collection("users").document(user.getUid()).get()
-                                            .addOnSuccessListener(documentSnapshot -> {
-                                                if (documentSnapshot.exists()) {
-                                                    String role = documentSnapshot.getString("role");
-                                                    if ("admin".equals(role)) {
-                                                        Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                                                        startActivity(new Intent(LoginActivity.this, MainActivityAdmin.class ));
-                                                        finish();
-                                                    } else {
-                                                        Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                                                        startActivity(new Intent(LoginActivity.this, MainActivity.class ));
-                                                        finish();
-                                                    }
-                                                }
-                                            })
-                                            .addOnFailureListener(e -> {
-                                                // Erro ao obter o papel (role) do usuário do Firestore
-                                                Toast.makeText(LoginActivity.this, "Erro ao obter papel (role) do usuário", Toast.LENGTH_SHORT).show();
-                                            });
-                                }
+                                Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(LoginActivity.this, MainActivity.class ));
+                                finish();
                             }).addOnFailureListener(e -> Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_SHORT).show());
                 } else {
                     editTextPassword.setError("Password cannot be empty");

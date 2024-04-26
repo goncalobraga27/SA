@@ -8,12 +8,13 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.saapp.databinding.ActivityMainAdminBinding;
 import com.example.saapp.databinding.ActivityMainBinding;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivityAdmin extends AppCompatActivity {
 
-    private ActivityMainBinding binding;
+    private ActivityMainAdminBinding binding;
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
 
@@ -22,11 +23,11 @@ public class MainActivityAdmin extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(R.layout.activity_main_admin);
+        binding = ActivityMainAdminBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main_admin);
-        NavigationUI.setupWithNavController(binding.navView, navController);
+        NavController navControllerAdmin = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main_admin);
+        NavigationUI.setupWithNavController(binding.navViewAdmin, navControllerAdmin);
 
         firebaseAuth = FirebaseAuth.getInstance();
 

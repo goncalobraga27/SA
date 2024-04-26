@@ -22,6 +22,7 @@ import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class AdminFragment extends Fragment {
     private FragmentAdminBinding binding;
@@ -46,23 +47,6 @@ public class AdminFragment extends Fragment {
         View root = binding.getRoot();
 
         EditText editTextLocation = root.findViewById(R.id.editTextLocation);
-
-        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-                getChildFragmentManager().findFragmentById(R.id.autocomplete_fragment);
-
-        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
-
-        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(@NonNull com.google.android.libraries.places.api.model.Place place) {
-                editTextLocation.setText(place.getName());
-            }
-
-            @Override
-            public void onError(@NonNull Status status) {
-                Log.e("Location Error","Add new place error");
-            }
-        });
 
         binding.buttonAddPlace.setOnClickListener(v -> {
             String location = editTextLocation.getText().toString();
