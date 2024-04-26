@@ -6,13 +6,13 @@
     app:startDestination="@+id/navigation_admin">
 
     <fragment
-        android:id="@+id/navigation_settings"
+        android:id="@+id/navigation_settings_admin"
         android:name="com.example.saapp.ui.settings.SettingsFragment"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
 
     <fragment
-        android:id="@+id/navigation_profile"
+        android:id="@+id/navigation_profile_admin"
         android:name="com.example.saapp.ui.profile.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
