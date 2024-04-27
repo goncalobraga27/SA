@@ -26,8 +26,11 @@
         </activity>
         <activity android:name=".SignUpActivity" android:exported="false"/>
         <activity android:name=".MainActivity" android:exported="false"/>
-        <activity android:name=".MainActivityAdmin" android:exported="false"/>
         <activity android:name=".ForgotPasswordActivity" android:exported="false"/>
+        <activity
+            android:name=".AddPlaceActivity"
+            android:parentActivityName=".MainActivity" >
+        </activity>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />

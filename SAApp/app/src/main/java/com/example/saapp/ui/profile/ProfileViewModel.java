@@ -19,7 +19,7 @@ public class ProfileViewModel extends ViewModel {
     private final MutableLiveData<String> userEmail = new MutableLiveData<>();
     private final MutableLiveData<Integer> userPoints = new MutableLiveData<>();
     private final MutableLiveData<String> passwordResetEmailStatus = new MutableLiveData<>();
-    private MutableLiveData<String> userRole= new MutableLiveData<>();
+    private final MutableLiveData<String> userRole= new MutableLiveData<>();
 
     public ProfileViewModel() {
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
