@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.saapp.ui.home.HomeFragment;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
@@ -27,7 +28,7 @@ import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import java.util.Arrays;
 import java.util.List;
 
-public class AddPlaceActivity extends AppCompatActivity {
+public class AddPlaceActivity extends AppCompatActivity implements HomeFragment.BottomSheetListener {
     private PlacesClient placesClient;
 
     @Override
@@ -67,8 +68,11 @@ public class AddPlaceActivity extends AppCompatActivity {
                             // Enviar a solicitação de busca de lugar para obter informações detalhadas sobre o lugar
                             placesClient.fetchPlace(fetchRequest).addOnSuccessListener(fetchResponse -> {
                                 Place place = fetchResponse.getPlace();
+                                showBottomSheetPlaceDetails(place);
                                 StringBuilder detailsBuilder = new StringBuilder();
                                 detailsBuilder.append("Place Name: ").append(place.getName()).append("\n");
+                                detailsBuilder.append("Place Coords: ").append(place.getLatLng()).append("\n");
+                                textViewPlaceDetails.setVisibility(View.VISIBLE);
                                 textViewPlaceDetails.setText(detailsBuilder.toString());
                             }).addOnFailureListener(exception -> {
                                 editTextLocation.setError("Cannot obtain location");
@@ -104,6 +108,16 @@ public class AddPlaceActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void showBottomSheetPlaceDetails(Place place) {
+        // Chame o método showBottomSheetPlaceDetails aqui
+        // Você pode acessar o fragmento usando o FragmentManager
+        HomeFragment homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_home);
+        if (homeFragment != null) {
+            homeFragment.showBottomSheetPlaceDetails(place);
+        }
     }
 
 }

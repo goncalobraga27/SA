@@ -165,7 +165,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
-    private void showBottomSheetPlaceDetails(Place place) {
+    public void showBottomSheetPlaceDetails(Place place) {
         View bottomSheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_place_details, null);
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
         bottomSheetDialog.setContentView(bottomSheetView);
@@ -281,5 +281,9 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 .addOnFailureListener(e -> {
                     Log.e("LocationUpdate", "Error saving location data: " + e.getMessage());
                 });
+    }
+
+    public interface BottomSheetListener {
+        void showBottomSheetPlaceDetails(Place place);
     }
 }
