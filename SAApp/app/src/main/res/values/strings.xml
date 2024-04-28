@@ -48,4 +48,5 @@
     <string name="prompt_role">Role</string>
     <string name="enter_location">Enter Location</string>
     <string name="title_places">Places</string>
+    <string name="view_map">See map</string>
 </resources>

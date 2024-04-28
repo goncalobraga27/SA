@@ -71,7 +71,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             Place.Field.RATING,
             Place.Field.PRICE_LEVEL);
     private FragmentHomeBinding binding;
-    private GoogleMap googleMap;
+    public GoogleMap googleMap;
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private LocationRequest locationRequest;
@@ -165,7 +165,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
-    public void showBottomSheetPlaceDetails(Place place) {
+    private void showBottomSheetPlaceDetails(Place place) {
         View bottomSheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_place_details, null);
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
         bottomSheetDialog.setContentView(bottomSheetView);
@@ -283,7 +283,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 });
     }
 
-    public interface BottomSheetListener {
-        void showBottomSheetPlaceDetails(Place place);
+    public interface showLocationPinListener {
+        void showLocationPinListener(Place place);
     }
 }
