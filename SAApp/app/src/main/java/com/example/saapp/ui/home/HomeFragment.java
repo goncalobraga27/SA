@@ -1,22 +1,16 @@
 package com.example.saapp.ui.home;
 
 import android.Manifest;
-import android.app.AlertDialog;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -46,24 +40,21 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPhotoRequest;
-import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
@@ -117,6 +108,9 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 Location lastKnownLocation = locationResult.getLastLocation();
                 if (lastKnownLocation != null) {
                     Log.i("LocationUpdate", "Latitude: " + lastKnownLocation.getLatitude() + ", Longitude: " + lastKnownLocation.getLongitude());
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    storeUserLocation(user,lastKnownLocation.getLongitude(), lastKnownLocation.getLatitude());
+
                 }
             }
         };
@@ -271,5 +265,20 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         if (fusedLocationClient != null && locationCallback != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
         }
+    }
+
+    private void storeUserLocation(FirebaseUser user, double longitude, double latitude) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Map<String, Object> data = new HashMap<>();
+        data.put("latitude", latitude);
+        data.put("longitude", longitude);
+
+        db.collection("user_locations").document(user.getUid()).set(data)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("LocationUpdate", "Location data saved successfully");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("LocationUpdate", "Error saving location data: " + e.getMessage());
+                });
     }
 }
