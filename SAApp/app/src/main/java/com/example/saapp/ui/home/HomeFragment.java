@@ -273,7 +273,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         data.put("latitude", latitude);
         data.put("longitude", longitude);
 
-        db.collection("user_locations").document(user.getUid()).set(data)
+        db.collection("user_locations").document(user.getUid())
+                .collection("locations").add(data)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("LocationUpdate", "Location data saved successfully");
                 })
