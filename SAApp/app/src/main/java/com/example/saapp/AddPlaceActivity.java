@@ -52,7 +52,7 @@ public class AddPlaceActivity extends AppCompatActivity {
         EditText editTextLocation = findViewById(R.id.editTextLocation);
         Button buttonAddPlace = findViewById(R.id.buttonAddPlace);
         TextView textViewPlaceDetails =findViewById(R.id.textViewPlaceDetails);
-        Button buttonViewMap = findViewById(R.id.buttonViewMap);
+        EditText editTextPoint = findViewById(R.id.editTextPoints);
 
         if (!Places.isInitialized()) {
             Places.initialize(this, BuildConfig.MAPS_API_KEY);
@@ -62,6 +62,7 @@ public class AddPlaceActivity extends AppCompatActivity {
 
         buttonAddPlace.setOnClickListener(view -> {
             String location = editTextLocation.getText().toString();
+            int points = Integer.parseInt(editTextPoint.getText().toString());
 
             if (!location.isEmpty()) {
                 List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
@@ -82,19 +83,11 @@ public class AddPlaceActivity extends AppCompatActivity {
                             // Enviar a solicitação de busca de lugar para obter informações detalhadas sobre o lugar
                             placesClient.fetchPlace(fetchRequest).addOnSuccessListener(fetchResponse -> {
                                 Place place = fetchResponse.getPlace();
-                                storePlaceInDB(place);
+                                storePlaceInDB(place,points);
                                 StringBuilder detailsBuilder = new StringBuilder();
                                 detailsBuilder.append("Place Coords: ").append(place.getLatLng()).append("\n");
                                 textViewPlaceDetails.setVisibility(View.VISIBLE);
                                 textViewPlaceDetails.setText(detailsBuilder.toString());
-                                buttonViewMap.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        // Inicie a nova atividade que contém o fragmento do mapa
-                                        Intent intent = new Intent(AddPlaceActivity.this, MainActivity.class);
-                                        startActivity(intent);
-                                    }
-                                });
                             }).addOnFailureListener(exception -> {
                                 editTextLocation.setError("Cannot obtain location");
                             });
@@ -131,7 +124,7 @@ public class AddPlaceActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void storePlaceInDB (Place place){
+    public void storePlaceInDB (Place place,int points){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
 
@@ -144,6 +137,7 @@ public class AddPlaceActivity extends AppCompatActivity {
         data.put("nome", place.getName());
         data.put("latitude", latitude);
         data.put("longitude", longitude);
+        data.put("points",points);
 
         db.collection("locals").add(data)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {

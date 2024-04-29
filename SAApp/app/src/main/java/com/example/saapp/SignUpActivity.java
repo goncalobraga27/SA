@@ -51,6 +51,7 @@ public class SignUpActivity extends AppCompatActivity {
                         FirebaseUser userFirebase = FirebaseAuth.getInstance().getCurrentUser();
                         if (userFirebase != null) {
                             storeUserRole(userFirebase,role);
+                            setupUserPoints(userFirebase);
                         }
                         Toast.makeText(SignUpActivity.this, "Signup Successful", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
@@ -74,5 +75,19 @@ public class SignUpActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Log.e("ROLES", "Erro na atribuição de um role a um utilizador: " + e.getMessage());
                 });
+    }
+
+    public void setupUserPoints(FirebaseUser user){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Map<String, Object> data = new HashMap<>();
+        data.put("points", 0);
+        db.collection("users_points").document(user.getUid()).set(data)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("POINTS", "Setup dos pontos com sucesso");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("POINTS", "Erro na atribuição de um role a um utilizador: " + e.getMessage());
+                });
+
     }
 }

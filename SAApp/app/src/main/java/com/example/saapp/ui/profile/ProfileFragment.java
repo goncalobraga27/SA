@@ -14,10 +14,13 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.saapp.R;
 import com.example.saapp.databinding.FragmentProfileBinding;
 
+import org.w3c.dom.Text;
+
 public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
     private TextView textViewUserRole;
+    private TextView profilePoints;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -33,6 +36,14 @@ public class ProfileFragment extends Fragment {
                 textViewUserRole.setText(role);
             } else {
                 textViewUserRole.setText("Role do utilizador não encontrado");
+            }
+        });
+        profilePoints = root.findViewById(R.id.profilePoints);
+        profileViewModel.getUserPontos().observe(getViewLifecycleOwner(), points -> {
+            if (points != null) {
+                profilePoints.setText(Double.toString(points));
+            } else {
+                profilePoints.setText("Não tem pontos");
             }
         });
         profileViewModel.getPasswordResetEmailStatus().observe(getViewLifecycleOwner(), this::showToast);

@@ -17,7 +17,7 @@ public class ProfileViewModel extends ViewModel {
 
     private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
     private final MutableLiveData<String> userEmail = new MutableLiveData<>();
-    private final MutableLiveData<Integer> userPoints = new MutableLiveData<>();
+    private final MutableLiveData<Double> userPoints = new MutableLiveData<>();
     private final MutableLiveData<String> passwordResetEmailStatus = new MutableLiveData<>();
     private final MutableLiveData<String> userRole= new MutableLiveData<>();
 
@@ -30,7 +30,7 @@ public class ProfileViewModel extends ViewModel {
         return userEmail;
     }
 
-    public LiveData<Integer> getUserPoints() {
+    public LiveData<Double> getUserPoints() {
         return userPoints;
     }
 
@@ -77,6 +77,27 @@ public class ProfileViewModel extends ViewModel {
             });
         }
         return userRole;
+    }
+
+    public LiveData<Double> getUserPontos() {
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        if (currentUser != null) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            DocumentReference userRef = db.collection("users_points").document(currentUser.getUid());
+
+            userRef.get().addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    double pontos = documentSnapshot.getDouble("points");
+                    userPoints.setValue(pontos);
+                    Log.d("UserPoints", "Os pontos do utilizador são: " + pontos);
+                } else {
+                    Log.d("UserPoints", "Não existem pontos do utilizador");
+                }
+            }).addOnFailureListener(e -> {
+                Log.e("UserPoints", "Erro ao obter os pontos do utilizador: " + e.getMessage());
+            });
+        }
+        return userPoints;
     }
 
 }

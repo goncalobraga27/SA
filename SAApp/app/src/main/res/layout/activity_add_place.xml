@@ -25,6 +25,7 @@
         android:layout_marginTop="88dp"
         app:cardCornerRadius="30dp"
         app:cardElevation="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
         tools:layout_editor_absoluteX="60dp">
 
@@ -46,6 +47,7 @@
                 android:textStyle="bold" />
 
             <!-- Place -->
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView"
                 android:layout_width="match_parent"
@@ -60,9 +62,25 @@
                     android:autofillHints="Enter Location"
                     android:hint="@string/enter_location"
                     android:inputType="text" />
+
             </androidx.cardview.widget.CardView>
 
             <!-- Add Place Button -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView_points"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                app:cardCornerRadius="8dp">
+            <EditText
+                android:id="@+id/editTextPoints"
+                android:layout_width="290dp"
+                android:layout_height="wrap_content"
+                android:autofillHints="Points to location"
+                android:hint="@string/enter_points"
+                android:inputType="text" />
+            </androidx.cardview.widget.CardView>
+
             <Button
                 android:id="@+id/buttonAddPlace"
                 android:layout_width="match_parent"
@@ -85,16 +103,6 @@
                 android:visibility="invisible"
                 tools:ignore="MissingConstraints" />
 
-            <Button
-                android:id="@+id/buttonViewMap"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:backgroundTint="@color/purple_500"
-                android:text="@string/view_map"
-                android:textSize="18sp"
-                app:cornerRadius="20dp"
-                tools:layout_editor_absoluteX="-47dp"
-                tools:layout_editor_absoluteY="681dp" />
 
         </LinearLayout>
 
