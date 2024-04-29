@@ -12,12 +12,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.saapp.ui.home.HomeFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
@@ -28,12 +32,16 @@ import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRe
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class AddPlaceActivity extends AppCompatActivity implements HomeFragment.showLocationPinListener {
+public class AddPlaceActivity extends AppCompatActivity {
     private PlacesClient placesClient;
 
     @Override
@@ -74,7 +82,7 @@ public class AddPlaceActivity extends AppCompatActivity implements HomeFragment.
                             // Enviar a solicitação de busca de lugar para obter informações detalhadas sobre o lugar
                             placesClient.fetchPlace(fetchRequest).addOnSuccessListener(fetchResponse -> {
                                 Place place = fetchResponse.getPlace();
-                                showLocationPinListener(place);
+                                storePlaceInDB(place);
                                 StringBuilder detailsBuilder = new StringBuilder();
                                 detailsBuilder.append("Place Coords: ").append(place.getLatLng()).append("\n");
                                 textViewPlaceDetails.setVisibility(View.VISIBLE);
@@ -123,17 +131,34 @@ public class AddPlaceActivity extends AppCompatActivity implements HomeFragment.
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void showLocationPinListener(Place place) {
-        HomeFragment homeFragment = (HomeFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_home);
-        if (homeFragment != null) {
-            homeFragment.googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), INITIAL_CAMERA_ZOOM));
+    public void storePlaceInDB (Place place){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-            MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(place.getLatLng());
-            markerOptions.title(place.getName());
-            homeFragment.googleMap.addMarker(markerOptions);
-        }
+
+        LatLng latLng = place.getLatLng();
+        double latitude = latLng.latitude;
+        double longitude = latLng.longitude;
+
+        // Crie um mapa para armazenar os dados no Firestore
+        Map<String, Object> data = new HashMap<>();
+        data.put("nome", place.getName());
+        data.put("latitude", latitude);
+        data.put("longitude", longitude);
+
+        db.collection("locals").add(data)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Log.d("Firestore", "Local adicionado: " + documentReference.getId());
+                        Toast.makeText(AddPlaceActivity.this, "Local adicionado com sucesso!", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("Firestore", "Erro ao adicionar local", e);
+                        Toast.makeText(AddPlaceActivity.this, "Erro ao adicionar local", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
-
 }

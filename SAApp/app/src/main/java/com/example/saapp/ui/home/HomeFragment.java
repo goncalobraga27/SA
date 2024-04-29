@@ -23,7 +23,9 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.saapp.AddPlaceActivity;
 import com.example.saapp.BuildConfig;
+import com.example.saapp.CalculaDistancia;
 import com.example.saapp.R;
 import com.example.saapp.databinding.FragmentHomeBinding;
 import com.google.android.gms.common.api.ApiException;
@@ -39,6 +41,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
@@ -50,6 +54,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -71,7 +77,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             Place.Field.RATING,
             Place.Field.PRICE_LEVEL);
     private FragmentHomeBinding binding;
-    public GoogleMap googleMap;
+    private GoogleMap googleMap;
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private LocationRequest locationRequest;
@@ -110,6 +116,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                     Log.i("LocationUpdate", "Latitude: " + lastKnownLocation.getLatitude() + ", Longitude: " + lastKnownLocation.getLongitude());
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                     storeUserLocation(user,lastKnownLocation.getLongitude(), lastKnownLocation.getLatitude());
+                    calculaPontoMaisProxima(lastKnownLocation);
+
 
                 }
             }
@@ -283,7 +291,34 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 });
     }
 
-    public interface showLocationPinListener {
-        void showLocationPinListener(Place place);
+    private void calculaPontoMaisProxima (Location location){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("locals")
+            .get()
+            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            if (document.contains("latitude") && document.contains("longitude")) {
+                                double pontoLatitude = document.getDouble("latitude");
+                                double pontoLongitude = document.getDouble("longitude");
+
+
+                                double distancia = CalculaDistancia.calcularDistanciaEntrePontos(location.getLatitude(), location.getLongitude(), pontoLatitude, pontoLongitude);
+
+                                if (distancia <= 3) {
+                                    String nomePonto = document.getString("nome");
+                                    Toast.makeText(requireContext(), "Tem de se dirigir até este local: " + nomePonto + ", para ganhar pontos ...", Toast.LENGTH_LONG).show();
+
+                                }
+                            }
+                        }
+                    } else {
+                        Log.d("Firestore", "Erro ao obter o documento: ", task.getException());
+                    }
+                }
+            });
     }
+
 }
