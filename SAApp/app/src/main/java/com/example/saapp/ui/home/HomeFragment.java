@@ -1,6 +1,7 @@
 package com.example.saapp.ui.home;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
@@ -345,6 +346,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                         if (!exists) {
                             if (distancia < 0.1) {
                                 increaseUserPoints(user, document.getDouble("points"), placeLatitude, placeLongitude,idCheckpoint);
+                                showPointsEarnedDialog(document.getDouble("points"));
                             }
                         }
                     });
@@ -437,6 +439,21 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                     Log.e("ADD MAP ERROR", "Error getting checkpoints: " + task.getException());
                 }
             });
+    }
+
+    private void showPointsEarnedDialog(double pointsEarned) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Parabéns!");
+        builder.setMessage("Você ganhou " + pointsEarned + " pontos!");
+        builder.setCancelable(false); // Impede que o diálogo seja fechado clicando fora dele
+
+        builder.setPositiveButton("Fechar", (dialog, which) -> {
+            // Faça qualquer coisa que você deseja quando o usuário clicar em OK
+            dialog.dismiss(); // Fecha o diálogo
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 
 }
