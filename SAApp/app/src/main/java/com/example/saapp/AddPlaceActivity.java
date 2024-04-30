@@ -36,6 +36,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -138,8 +139,9 @@ public class AddPlaceActivity extends AppCompatActivity {
         data.put("latitude", latitude);
         data.put("longitude", longitude);
         data.put("points",points);
+        data.put("visitedBy",new ArrayList<>());
 
-        db.collection("locals").add(data)
+        db.collection("checkpoints").add(data)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {

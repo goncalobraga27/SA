@@ -42,6 +42,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
@@ -284,8 +285,10 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         data.put("latitude", latitude);
         data.put("longitude", longitude);
 
-        db.collection("user_locations").document(user.getUid())
-                .collection("locations").add(data)
+        db.collection("users")
+                .document(user.getUid())
+                .collection("user_location")
+                .add(data)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("LocationUpdate", "Location data saved successfully");
                 })
@@ -296,7 +299,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     private void calculaPontoMaisProxima (Location location){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("locals")
+        db.collection("checkpoints")
             .get()
             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
@@ -306,11 +309,11 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                             if (document.contains("latitude") && document.contains("longitude")) {
                                 double pontoLatitude = document.getDouble("latitude");
                                 double pontoLongitude = document.getDouble("longitude");
-
+                                String idCheckPoint = document.getId();
 
                                 double distancia = CalculaDistancia.calcularDistanciaEntrePontos(location.getLatitude(), location.getLongitude(), pontoLatitude, pontoLongitude);
 
-                                checkPointExists(FirebaseAuth.getInstance().getCurrentUser(),pontoLatitude,pontoLongitude).addOnSuccessListener(exists ->{
+                                checkUserVisitedCheckpoint(FirebaseAuth.getInstance().getCurrentUser(),idCheckPoint).addOnSuccessListener(exists ->{
                                     if (!exists) {
                                         if (distancia <= 3) {
                                             String nomePonto = document.getString("nome");
@@ -330,18 +333,18 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     private void calculaPontos(FirebaseUser user,Location location){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("locals")
+        db.collection("checkpoints")
             .get()
             .addOnSuccessListener(queryDocumentSnapshots -> {
                 for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
                     double placeLatitude = document.getDouble("latitude");
                     double placeLongitude = document.getDouble("longitude");
-
+                    String idCheckpoint = document.getId();
                     double distancia = CalculaDistancia.calcularDistanciaEntrePontos(location.getLatitude(), location.getLongitude(), placeLatitude, placeLongitude);
-                    checkPointExists(FirebaseAuth.getInstance().getCurrentUser(),placeLatitude,placeLongitude).addOnSuccessListener(exists -> {
+                    checkUserVisitedCheckpoint(FirebaseAuth.getInstance().getCurrentUser(),idCheckpoint).addOnSuccessListener(exists -> {
                         if (!exists) {
                             if (distancia < 0.1) {
-                                increaseUserPoints(user, document.getDouble("points"), placeLatitude, placeLongitude);
+                                increaseUserPoints(user, document.getDouble("points"), placeLatitude, placeLongitude,idCheckpoint);
                             }
                         }
                     });
@@ -353,9 +356,9 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
-    public void increaseUserPoints(FirebaseUser user, double points,double placeLatitude, double placeLongitude){
+    public void increaseUserPoints(FirebaseUser user, double points,double placeLatitude, double placeLongitude,String idCheckPoint){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users_points")
+        db.collection("users")
                 .document(user.getUid())
                 .update("points", increment(points))
                 .addOnSuccessListener(aVoid -> {
@@ -364,17 +367,15 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 .addOnFailureListener(e -> {
                     Log.e("LocationUtils", "Error increasing user points: " + e.getMessage());
                 });
-        checkpointDone(user,placeLatitude,placeLongitude);
+        checkpointDone(user,idCheckPoint);
     }
 
-    public void checkpointDone(FirebaseUser user, double latitude, double longitude){
+    public void checkpointDone(FirebaseUser user,String idCheckpoint ){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Map<String, Object> data = new HashMap<>();
-        data.put("latitude", latitude);
-        data.put("longitude", longitude);
 
-        db.collection("users_points").document(user.getUid())
-                .collection("checkpointsDone").add(data)
+        db.collection("checkpoints")
+                .document(idCheckpoint)
+                .update("visitedBy",FieldValue.arrayUnion(user.getUid()))
                 .addOnSuccessListener(aVoid -> {
                     Log.d("SAVE CHECKPOINT STATUS", "Checkpoint done by user!");
                 })
@@ -383,32 +384,36 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 });
     }
 
-    public Task<Boolean> checkPointExists(FirebaseUser user, double latitude, double longitude) {
+    public Task<Boolean> checkUserVisitedCheckpoint(FirebaseUser user, String checkpointId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Consulta para verificar se o ponto já existe na subcoleção "checkpointsDone" do usuário
-        return db.collection("users_points")
-                .document(user.getUid())
-                .collection("checkpointsDone")
-                .whereEqualTo("latitude", latitude)
-                .whereEqualTo("longitude", longitude)
-                .limit(1)
+        // Consulta o documento de checkpoint específico
+        return db.collection("checkpoints")
+                .document(checkpointId)
                 .get()
                 .continueWith(task -> {
                     if (task.isSuccessful()) {
-                        boolean exists = !task.getResult().isEmpty();
-                        if (exists) {
-                            Log.d("CHECKPOINT EXISTS", "Point already exists in the database.");
+                        DocumentSnapshot documentSnapshot = task.getResult();
+                        if (documentSnapshot.exists()) {
+                            List<String> visitedBy = (List<String>) documentSnapshot.get("visitedBy");
+                            if (visitedBy != null && visitedBy.contains(user.getUid())) {
+                                return true;
+                            } else {
+                                // O usuário não está na lista de visitedBy do checkpoint
+                                return false;
+                            }
                         } else {
-                            Log.d("CHECKPOINT EXISTS", "Point does not exist in the database.");
+                            // O documento de checkpoint não existe
+                            throw new RuntimeException("Checkpoint " + checkpointId + " does not exist.");
                         }
-                        return exists;
                     } else {
-                        Log.e("CHECKPOINT EXISTS", "Error checking point existence: ", task.getException());
+                        // Erro ao obter o documento de checkpoint
                         throw task.getException();
                     }
                 });
     }
+
+
 
 
     private static FieldValue increment(double value) {

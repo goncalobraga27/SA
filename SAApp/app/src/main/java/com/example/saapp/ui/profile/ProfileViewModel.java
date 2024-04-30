@@ -83,7 +83,7 @@ public class ProfileViewModel extends ViewModel {
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         if (currentUser != null) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
-            DocumentReference userRef = db.collection("users_points").document(currentUser.getUid());
+            DocumentReference userRef = db.collection("users").document(currentUser.getUid());
 
             userRef.get().addOnSuccessListener(documentSnapshot -> {
                 if (documentSnapshot.exists()) {

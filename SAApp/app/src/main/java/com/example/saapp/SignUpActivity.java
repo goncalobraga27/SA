@@ -68,7 +68,9 @@ public class SignUpActivity extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         Map<String, Object> data = new HashMap<>();
         data.put("role", role);
-        db.collection("users").document(user.getUid()).set(data)
+        db.collection("users")
+                .document(user.getUid())
+                .set(data)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("ROLES", "Sucesso na atribuição de um role a um utilizador");
                 })
@@ -81,7 +83,9 @@ public class SignUpActivity extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         Map<String, Object> data = new HashMap<>();
         data.put("points", 0);
-        db.collection("users_points").document(user.getUid()).set(data)
+        db.collection("users")
+                .document(user.getUid())
+                .update(data)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("POINTS", "Setup dos pontos com sucesso");
                 })
