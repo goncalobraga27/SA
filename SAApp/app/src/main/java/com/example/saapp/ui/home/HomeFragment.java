@@ -174,7 +174,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 }
             });
         }
-
+        putCheckPointsInMap();
     }
 
     private void showBottomSheetPlaceDetails(Place place) {
@@ -317,7 +317,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                                     if (!exists) {
                                         if (distancia <= 3) {
                                             String nomePonto = document.getString("nome");
-                                            Toast.makeText(requireContext(), "Tem de se dirigir até este local: " + nomePonto + ", para ganhar pontos ...", Toast.LENGTH_LONG).show();
+                                            Toast.makeText(requireContext(), "CHECKPOINT: " + nomePonto, Toast.LENGTH_LONG).show();
 
                                         }
                                     }
@@ -399,25 +399,44 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                             if (visitedBy != null && visitedBy.contains(user.getUid())) {
                                 return true;
                             } else {
-                                // O usuário não está na lista de visitedBy do checkpoint
                                 return false;
                             }
                         } else {
-                            // O documento de checkpoint não existe
                             throw new RuntimeException("Checkpoint " + checkpointId + " does not exist.");
                         }
                     } else {
-                        // Erro ao obter o documento de checkpoint
                         throw task.getException();
                     }
                 });
     }
 
-
-
-
     private static FieldValue increment(double value) {
         return com.google.firebase.firestore.FieldValue.increment(value);
+    }
+
+    private void putCheckPointsInMap(){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("checkpoints")
+            .get()
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    for (DocumentSnapshot document : task.getResult()) {
+                        double latitude = document.getDouble("latitude");
+                        double longitude = document.getDouble("longitude");
+
+                        Place place = Place.builder().setLatLng(new LatLng(latitude,longitude)).build();
+
+                        if (place.getLatLng() != null) {
+                            MarkerOptions markerOptions = new MarkerOptions();
+                            markerOptions.position(place.getLatLng());
+                            markerOptions.title(place.getName());
+                            googleMap.addMarker(markerOptions);
+                        }
+                    }
+                } else {
+                    Log.e("ADD MAP ERROR", "Error getting checkpoints: " + task.getException());
+                }
+            });
     }
 
 }

@@ -111,17 +111,6 @@
                 android:backgroundTint="@color/purple_500"
                 app:cornerRadius="20dp" />
 
-            <!-- Go Premium Button -->
-            <Button
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:text="@string/go_premium"
-                android:id="@+id/buttonGoPremium"
-                android:textSize="18sp"
-                android:layout_marginTop="10dp"
-                android:backgroundTint="@color/yellow"
-                app:cornerRadius="20dp" />
-
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
