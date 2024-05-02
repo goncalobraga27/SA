@@ -50,4 +50,10 @@
     <string name="title_places">Places</string>
     <string name="view_map">See map</string>
     <string name="enter_points">Enter Points</string>
+    <string name="title_rewards">Rewards</string>
+    <string name="enter_the_reward_name">Enter the reward name</string>
+    <string name="enter_the_reward_description">Enter the reward description</string>
+    <string name="enter_the_points_to_redeem_the_reward">Enter the necessary points to redeem the reward</string>
+    <string name="enter_the_partner_name">Enter the partner name</string>
+    <string name="rewards">Rewards</string>
 </resources>

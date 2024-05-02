@@ -46,7 +46,7 @@ public class PlacesFragment extends Fragment {
         View root = binding.getRoot();
 
         Button buttonAddNewPlace = binding.buttonAddNewPlace;
-        ListView checkpointListView = binding.checkpointListView;
+        ListView checkpointListView = binding.placesListView;
 
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         FirebaseFirestore db = FirebaseFirestore.getInstance();

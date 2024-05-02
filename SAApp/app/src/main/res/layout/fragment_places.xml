@@ -23,7 +23,7 @@
 
     <!-- Adiciona um ListView para exibir os checkpoints -->
     <ListView
-        android:id="@+id/checkpointListView"
+        android:id="@+id/placesListView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
