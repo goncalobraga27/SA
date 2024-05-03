@@ -3,15 +3,22 @@ package com.example.saapp.ui.profile;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.List;
+import java.util.Map;
 
 public class ProfileViewModel extends ViewModel {
 
@@ -20,6 +27,12 @@ public class ProfileViewModel extends ViewModel {
     private final MutableLiveData<Double> userPoints = new MutableLiveData<>();
     private final MutableLiveData<String> passwordResetEmailStatus = new MutableLiveData<>();
     private final MutableLiveData<String> userRole= new MutableLiveData<>();
+
+    private final MutableLiveData<List<Map<String,Object>>> userRewards= new MutableLiveData<>();
+
+    public MutableLiveData<List<Map<String, Object>>> getUserRewards() {
+        return userRewards;
+    }
 
     public ProfileViewModel() {
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
@@ -99,5 +112,40 @@ public class ProfileViewModel extends ViewModel {
         }
         return userPoints;
     }
+
+    public LiveData<List<Map<String,Object>>> getUserRewardList() {
+        // Verifica se o usuário está logado
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            // Obtém a referência do documento do usuário no Firestore
+            DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(currentUser.getUid());
+
+            // Obtém a lista de recompensas do usuário
+            userRef.get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            // Verifica se o documento do usuário existe
+                            if (documentSnapshot.exists()) {
+                                // Recupera a lista de recompensas do usuário
+                                List<Map<String, Object>> rewardList = (List<Map<String, Object>>) documentSnapshot.get("rewardList");
+                                userRewards.setValue(rewardList);
+                            } else {
+                                // Se o documento do usuário não existir, trata o caso adequadamente
+                                Log.d("UserNotFound", "Usuário não encontrado no Firestore.");
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // Trata falhas na recuperação da lista de recompensas do usuário
+                            Log.e("GetUserRewardListError", "Erro ao obter a lista de recompensas do usuário: " + e.getMessage());
+                        }
+                    });
+        }
+        return userRewards;
+    }
+
 
 }

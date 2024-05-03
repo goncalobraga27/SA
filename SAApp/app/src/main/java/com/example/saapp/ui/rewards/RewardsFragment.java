@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.saapp.AddRewardActivity;
+import com.example.saapp.R;
 import com.example.saapp.RewardAdapter;
 import com.example.saapp.databinding.FragmentRewardsBinding;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -65,24 +66,26 @@ public View onCreateView(@NonNull LayoutInflater inflater,
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         getPartnersByUser(user)
             .addOnSuccessListener(partners -> {
-                CollectionReference rewardsRef = db.collection("rewards");
-                rewardsRef.whereIn("partner", partners)
-                        .get()
-                        .addOnSuccessListener(queryDocumentSnapshots -> {
-                            List<Map<String, Object>> rewardsList = new ArrayList<>();
+                if (!partners.isEmpty()) {
+                    CollectionReference rewardsRef = db.collection("rewards");
+                    rewardsRef.whereIn("partner", partners)
+                            .get()
+                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                List<Map<String, Object>> rewardsList = new ArrayList<>();
 
-                            for (DocumentSnapshot document : queryDocumentSnapshots) {
-                                Map<String, Object> reward = document.getData();
-                                rewardsList.add(reward);
-                            }
+                                for (DocumentSnapshot document : queryDocumentSnapshots) {
+                                    Map<String, Object> reward = document.getData();
+                                    rewardsList.add(reward);
+                                }
 
-                            RewardAdapter adapter = new RewardAdapter(getContext(), rewardsList);
-                            rewardsListView.setAdapter(adapter);
-                        })
-                        .addOnFailureListener(e -> {
-                            // Trate falhas ao buscar as recompensas filtradas
-                            Log.e("PlacesFragment", "Erro ao obter as recompensas filtradas: " + e.getMessage());
-                        });
+                                RewardAdapter adapter = new RewardAdapter(getContext(), rewardsList);
+                                rewardsListView.setAdapter(adapter);
+                            })
+                            .addOnFailureListener(e -> {
+                                // Trate falhas ao buscar as recompensas filtradas
+                                Log.e("PlacesFragment", "Erro ao obter as recompensas filtradas: " + e.getMessage());
+                            });
+                }
             })
             .addOnFailureListener(e -> {
                 // Trate falhas ao buscar os parceiros do usuário
@@ -90,8 +93,8 @@ public View onCreateView(@NonNull LayoutInflater inflater,
             });
 
 
-    return root;
-    }
+        return root;
+}
 
     @Override
     public void onDestroyView() {

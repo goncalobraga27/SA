@@ -84,6 +84,7 @@ public class SignUpActivity extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         Map<String, Object> data = new HashMap<>();
         data.put("points", 0);
+        data.put("rewardList",new ArrayList<>());
         db.collection("users")
                 .document(user.getUid())
                 .update(data)

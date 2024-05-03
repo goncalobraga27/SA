@@ -110,6 +110,15 @@
                 android:layout_marginTop="10dp"
                 android:backgroundTint="@color/purple_500"
                 app:cornerRadius="20dp" />
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:text="@string/rewards"
+                android:id="@+id/buttonRewards"
+                android:textSize="18sp"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="@color/purple_500"
+                app:cornerRadius="20dp" />
 
         </LinearLayout>
 

@@ -50,6 +50,7 @@ public class ProfileFragment extends Fragment {
 
         binding.buttonLogout.setOnClickListener(v -> profileViewModel.logout());
         binding.buttonResetPass.setOnClickListener(v -> profileViewModel.sendPasswordResetEmail());
+        binding.buttonRewards.setOnClickListener(v -> profileViewModel.getUserRewardList());
 
 
         return root;
