@@ -1,7 +1,6 @@
 package com.example.saapp.ui.rewards;
 
 import android.content.Intent;
-import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,28 +8,28 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.saapp.AddRewardActivity;
-import com.example.saapp.CheckPointAdapter;
-import com.example.saapp.R;
 import com.example.saapp.RewardAdapter;
 import com.example.saapp.databinding.FragmentRewardsBinding;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 public class RewardsFragment extends Fragment {
 
@@ -63,25 +62,35 @@ public View onCreateView(@NonNull LayoutInflater inflater,
         }
         
         binding.buttonAddNewReward.setOnClickListener(v -> startActivity(new Intent(getActivity(), AddRewardActivity.class)));
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        getPartnersByUser(user)
+            .addOnSuccessListener(partners -> {
+                CollectionReference rewardsRef = db.collection("rewards");
+                rewardsRef.whereIn("partner", partners)
+                        .get()
+                        .addOnSuccessListener(queryDocumentSnapshots -> {
+                            List<Map<String, Object>> rewardsList = new ArrayList<>();
 
-        CollectionReference rewardsRef = db.collection("rewards");
-        rewardsRef.get().addOnSuccessListener(queryDocumentSnapshots -> {
-            List<Map<String, Object>> rewardsList = new ArrayList<>();
+                            for (DocumentSnapshot document : queryDocumentSnapshots) {
+                                Map<String, Object> reward = document.getData();
+                                rewardsList.add(reward);
+                            }
 
-            for (DocumentSnapshot document : queryDocumentSnapshots) {
-                Map<String, Object> reward = document.getData();
-                rewardsList.add(reward);
-            }
-            RewardAdapter adapter = new RewardAdapter(getContext(), rewardsList);
-            rewardsListView.setAdapter(adapter);
-        }).addOnFailureListener(e -> {
-            // Trate falhas ao buscar os checkpoints
-            Log.e("PlacesFragment", "Erro ao obter os checkpoints: " + e.getMessage());
-        });
+                            RewardAdapter adapter = new RewardAdapter(getContext(), rewardsList);
+                            rewardsListView.setAdapter(adapter);
+                        })
+                        .addOnFailureListener(e -> {
+                            // Trate falhas ao buscar as recompensas filtradas
+                            Log.e("PlacesFragment", "Erro ao obter as recompensas filtradas: " + e.getMessage());
+                        });
+            })
+            .addOnFailureListener(e -> {
+                // Trate falhas ao buscar os parceiros do usuário
+                Log.e("Erro", "Erro na obtenção dos partners: " + e.getMessage());
+            });
 
 
-
-        return root;
+    return root;
     }
 
     @Override
@@ -89,6 +98,32 @@ public View onCreateView(@NonNull LayoutInflater inflater,
         super.onDestroyView();
         binding = null;
     }
+
+    public Task<List<String>> getPartnersByUser(FirebaseUser user) {
+        CollectionReference checkpointsRef = FirebaseFirestore.getInstance().collection("checkpoints");
+
+        return checkpointsRef.get()
+                .continueWith(task -> {
+                    List<String> partners = new ArrayList<>();
+                    if (task.isSuccessful()) {
+                        // Operação bem-sucedida, processa os documentos
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Map<String, Object> checkpoint = document.getData();
+                            List<String> ids = (List<String>) checkpoint.get("visitedBy");
+                            String partner = (String) checkpoint.get("partner");
+                            if (ids != null && ids.contains(user.getUid())) {
+                                partners.add(partner);
+                            }
+                        }
+                        return partners; // Retorna a lista de parceiros
+                    } else {
+                        // Operação falhou, retorna uma lista vazia ou lança uma exceção
+                        return new ArrayList<>();
+                        // Ou você pode lançar a exceção: throw task.getException();
+                    }
+                });
+    }
+
 
 
 }

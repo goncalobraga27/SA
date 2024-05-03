@@ -151,6 +151,7 @@ public class AddPlaceActivity extends AppCompatActivity {
                     public void onSuccess(DocumentReference documentReference) {
                         Log.d("Firestore", "Local adicionado: " + documentReference.getId());
                         Toast.makeText(AddPlaceActivity.this, "Local adicionado com sucesso!", Toast.LENGTH_SHORT).show();
+
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
