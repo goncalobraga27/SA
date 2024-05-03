@@ -130,6 +130,7 @@ public class ProfileViewModel extends ViewModel {
                                 // Recupera a lista de recompensas do usuário
                                 List<Map<String, Object>> rewardList = (List<Map<String, Object>>) documentSnapshot.get("rewardList");
                                 userRewards.setValue(rewardList);
+
                             } else {
                                 // Se o documento do usuário não existir, trata o caso adequadamente
                                 Log.d("UserNotFound", "Usuário não encontrado no Firestore.");

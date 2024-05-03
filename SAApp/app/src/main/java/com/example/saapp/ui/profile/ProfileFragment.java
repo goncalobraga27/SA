@@ -1,5 +1,6 @@
 package com.example.saapp.ui.profile;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,8 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.saapp.R;
 import com.example.saapp.databinding.FragmentProfileBinding;
-
-import org.w3c.dom.Text;
+import com.example.saapp.RewardsActivity;
 
 public class ProfileFragment extends Fragment {
 
@@ -50,8 +50,13 @@ public class ProfileFragment extends Fragment {
 
         binding.buttonLogout.setOnClickListener(v -> profileViewModel.logout());
         binding.buttonResetPass.setOnClickListener(v -> profileViewModel.sendPasswordResetEmail());
-        binding.buttonRewards.setOnClickListener(v -> profileViewModel.getUserRewardList());
 
+        binding.buttonRewards.setOnClickListener(v -> {
+            profileViewModel.getUserRewardList().observe(getViewLifecycleOwner(), rewards -> {
+                Intent intent = new Intent(getActivity(), RewardsActivity.class);
+                startActivity(intent);
+            });
+        });
 
         return root;
     }
