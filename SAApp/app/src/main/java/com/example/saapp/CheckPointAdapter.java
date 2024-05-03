@@ -37,10 +37,10 @@ public class CheckPointAdapter extends ArrayAdapter<Map<String, Object>> {
         TextView pontosTextView = listItem.findViewById(R.id.pontosTextView);
 
         // Extraia os valores do checkpoint e defina nos TextViews
-        nomeTextView.setText((String) checkpoint.get("nome"));
-        latitudeTextView.setText(String.valueOf(checkpoint.get("latitude")));
-        longitudeTextView.setText(String.valueOf(checkpoint.get("longitude")));
-        pontosTextView.setText(String.valueOf(checkpoint.get("points")));
+        nomeTextView.setText(String.format("Nome: %s", checkpoint.get("nome")));
+        latitudeTextView.setText(String.format("Latitude: %s", checkpoint.get("latitude")));
+        longitudeTextView.setText(String.format("Longitude %s", checkpoint.get("longitude")));
+        pontosTextView.setText(String.format("Points: %s", checkpoint.get("points")));
 
         return listItem;
     }

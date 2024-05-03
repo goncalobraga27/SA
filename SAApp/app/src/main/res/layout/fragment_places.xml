@@ -8,20 +8,20 @@
     android:orientation="vertical"
     tools:context=".ui.settings.PlacesFragment">
 
+    <!-- Adiciona um ListView para exibir os checkpoints -->
     <Button
         android:id="@+id/buttonAddNewPlace"
         android:layout_width="match_parent"
         android:layout_height="60dp"
+        android:layout_gravity="center"
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="30dp"
-        android:layout_gravity="center"
         android:backgroundTint="@color/purple_500"
         android:text="@string/add_places"
         android:textSize="18sp"
         android:visibility="invisible"
         app:cornerRadius="20dp" />
 
-    <!-- Adiciona um ListView para exibir os checkpoints -->
     <ListView
         android:id="@+id/placesListView"
         android:layout_width="match_parent"

@@ -6,6 +6,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
+    <Button
+        android:id="@+id/buttonAddNewReward"
+        android:layout_width="405dp"
+        android:layout_height="75dp"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="20dp"
+        android:backgroundTint="@color/purple_500"
+        android:text="Add New Reward"
+        android:textSize="18sp"
+        android:visibility="invisible"
+        app:cornerRadius="20dp"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="3dp"
+        tools:layout_editor_absoluteY="25dp" />
+
     <ListView
         android:id="@+id/rewardsListView"
         android:layout_width="415dp"
@@ -14,11 +30,4 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/buttonAddNewReward"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add New Reward"
-        tools:layout_editor_absoluteX="120dp"
-        tools:layout_editor_absoluteY="125dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>
