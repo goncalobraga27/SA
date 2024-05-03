@@ -2,6 +2,7 @@ package com.example.saapp;
 
 import static com.example.saapp.ui.home.HomeFragment.INITIAL_CAMERA_ZOOM;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -54,6 +55,7 @@ public class AddPlaceActivity extends AppCompatActivity {
         Button buttonAddPlace = findViewById(R.id.buttonAddPlace);
         TextView textViewPlaceDetails =findViewById(R.id.textViewPlaceDetails);
         EditText editTextPoint = findViewById(R.id.editTextPoints);
+        EditText editTextPartner = findViewById(R.id.editPartnerText);
 
         if (!Places.isInitialized()) {
             Places.initialize(this, BuildConfig.MAPS_API_KEY);
@@ -64,6 +66,7 @@ public class AddPlaceActivity extends AppCompatActivity {
         buttonAddPlace.setOnClickListener(view -> {
             String location = editTextLocation.getText().toString();
             int points = Integer.parseInt(editTextPoint.getText().toString());
+            String partner = editTextPartner.getText().toString();
 
             if (!location.isEmpty()) {
                 List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
@@ -84,7 +87,7 @@ public class AddPlaceActivity extends AppCompatActivity {
                             // Enviar a solicitação de busca de lugar para obter informações detalhadas sobre o lugar
                             placesClient.fetchPlace(fetchRequest).addOnSuccessListener(fetchResponse -> {
                                 Place place = fetchResponse.getPlace();
-                                storePlaceInDB(place,points);
+                                storePlaceInDB(place,points,partner);
                                 StringBuilder detailsBuilder = new StringBuilder();
                                 detailsBuilder.append("Place Coords: ").append(place.getLatLng()).append("\n");
                                 textViewPlaceDetails.setVisibility(View.VISIBLE);
@@ -125,7 +128,7 @@ public class AddPlaceActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void storePlaceInDB (Place place,int points){
+    public void storePlaceInDB (Place place,int points,String partner){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
 
@@ -140,6 +143,7 @@ public class AddPlaceActivity extends AppCompatActivity {
         data.put("longitude", longitude);
         data.put("points",points);
         data.put("visitedBy",new ArrayList<>());
+        data.put("partner",partner);
 
         db.collection("checkpoints").add(data)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
