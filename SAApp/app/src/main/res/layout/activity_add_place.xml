@@ -19,6 +19,7 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/addPlaceCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="30dp"
@@ -47,61 +48,50 @@
                 android:textStyle="bold" />
 
             <!-- Place -->
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardView"
+            <EditText
+                android:id="@+id/editTextLocation"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardCornerRadius="8dp">
+                android:layout_height="50dp"
+                android:autofillHints="Enter Location"
+                android:background="@drawable/custom_edittext"
+                android:layout_marginTop="40dp"
+                android:padding="8dp"
+                android:drawablePadding="8dp"
+                android:textColor="@color/black"
+                android:hint="@string/enter_location"
+                android:inputType="text" />
 
-                <EditText
-                    android:id="@+id/editTextLocation"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:autofillHints="Enter Location"
-                    android:hint="@string/enter_location"
-                    android:inputType="text" />
-
-            </androidx.cardview.widget.CardView>
-
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardView_points"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardCornerRadius="8dp">
             <EditText
                 android:id="@+id/editTextPoints"
-                android:layout_width="290dp"
-                android:layout_height="wrap_content"
-                android:autofillHints="Points to location"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:autofillHints="Enter Points"
+                android:background="@drawable/custom_edittext"
+                android:layout_marginTop="40dp"
+                android:padding="8dp"
+                android:drawablePadding="8dp"
+                android:textColor="@color/black"
                 android:hint="@string/enter_points"
                 android:inputType="text" />
-            </androidx.cardview.widget.CardView>
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardView_partner"
+            <EditText
+                android:id="@+id/editPartnerText"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardCornerRadius="8dp">
-
-                <EditText
-                    android:id="@+id/editPartnerText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:hint="Enter Partner"
-                    android:inputType="text" />
-            </androidx.cardview.widget.CardView>
+                android:layout_height="50dp"
+                android:autofillHints="Enter Partner"
+                android:background="@drawable/custom_edittext"
+                android:layout_marginTop="40dp"
+                android:padding="8dp"
+                android:drawablePadding="8dp"
+                android:textColor="@color/black"
+                android:hint="@string/enter_partner"
+                android:inputType="text" />
 
             <Button
                 android:id="@+id/buttonAddPlace"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="30dp"
                 android:backgroundTint="@color/purple_500"
                 android:text="@string/add_places"
                 android:textSize="18sp"
@@ -110,8 +100,8 @@
             <TextView
                 android:id="@+id/textViewPlaceDetails"
                 android:layout_width="match_parent"
-                android:layout_height="188dp"
-                android:layout_marginBottom="50dp"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="@+id/addPlaceCard"
                 android:background="@drawable/custom_edittext"
                 android:padding="16dp"
                 android:textColor="@android:color/black"

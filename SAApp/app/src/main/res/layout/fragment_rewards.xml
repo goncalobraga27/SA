@@ -1,33 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fragment_rewards"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
 
     <Button
         android:id="@+id/buttonAddNewReward"
-        android:layout_width="405dp"
-        android:layout_height="75dp"
-        android:layout_gravity="center"
         android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="center"
         android:backgroundTint="@color/purple_500"
-        android:text="Add New Reward"
+        android:text="@string/add_new_reward"
         android:textSize="18sp"
         android:visibility="invisible"
         app:cornerRadius="20dp"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="3dp"
-        tools:layout_editor_absoluteY="25dp" />
+        tools:ignore="MissingConstraints" />
 
     <ListView
         android:id="@+id/rewardsListView"
-        android:layout_width="407dp"
-        android:layout_height="748dp"
-        android:layout_marginStart="1dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="10dp"
+        android:clipToPadding="false"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="8dp"
+        android:padding="16dp"  />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

@@ -6,9 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.settings.PlacesFragment">
+    tools:context=".ui.places.PlacesFragment">
 
     <!-- Adiciona um ListView para exibir os checkpoints -->
+
     <Button
         android:id="@+id/buttonAddNewPlace"
         android:layout_width="match_parent"
@@ -26,10 +27,11 @@
         android:id="@+id/placesListView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="10dp"
         android:layout_weight="1"
-        android:padding="16dp"
+        android:clipToPadding="false"
         android:divider="@android:color/transparent"
         android:dividerHeight="8dp"
-        android:clipToPadding="false" />
+        android:padding="16dp" />
 
 </LinearLayout>

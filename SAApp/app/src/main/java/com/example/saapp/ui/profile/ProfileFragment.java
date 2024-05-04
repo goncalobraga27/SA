@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,7 +20,7 @@ import com.example.saapp.RewardsActivity;
 public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
-    private TextView textViewUserRole;
+    private EditText textViewUserRole;
     private TextView profilePoints;
 
     public View onCreateView(@NonNull LayoutInflater inflater,

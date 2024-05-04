@@ -8,9 +8,8 @@
 
     <ListView
         android:id="@+id/rewardsUserListView"
-        android:layout_width="408dp"
-        android:layout_height="892dp"
-        android:layout_marginStart="1dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

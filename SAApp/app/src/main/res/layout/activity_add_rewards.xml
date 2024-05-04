@@ -47,79 +47,65 @@
                 android:textStyle="bold" />
 
             <!-- Reward -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardViewNameReward"
+            <EditText
+                android:id="@+id/nameReward"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardCornerRadius="8dp">
+                android:layout_height="50dp"
+                android:autofillHints="Enter the name"
+                android:background="@drawable/custom_edittext"
+                android:layout_marginTop="40dp"
+                android:padding="8dp"
+                android:drawablePadding="8dp"
+                android:textColor="@color/black"
+                android:hint="@string/enter_the_reward_name"
+                android:inputType="text" />
 
-                <EditText
-                    android:id="@+id/nameReward"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:autofillHints="Enter the reward name"
-                    android:hint="@string/enter_the_reward_name"
-                    android:inputType="text" />
-
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardViewDescriptionReward"
+            <EditText
+                android:id="@+id/descriptionReward"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardCornerRadius="8dp">
+                android:layout_height="50dp"
+                android:autofillHints="Enter the description"
+                android:background="@drawable/custom_edittext"
+                android:layout_marginTop="40dp"
+                android:padding="8dp"
+                android:drawablePadding="8dp"
+                android:textColor="@color/black"
+                android:hint="@string/enter_the_reward_description"
+                android:inputType="text" />
 
-                <EditText
-                    android:id="@+id/descriptionReward"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:autofillHints="Enter the reward description"
-                    android:hint="@string/enter_the_reward_description"
-                    android:inputType="text" />
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardViewPointsReward"
+            <EditText
+                android:id="@+id/pointsReward"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardCornerRadius="8dp">
+                android:layout_height="50dp"
+                android:autofillHints="Enter the points"
+                android:background="@drawable/custom_edittext"
+                android:layout_marginTop="40dp"
+                android:padding="8dp"
+                android:drawablePadding="8dp"
+                android:textColor="@color/black"
+                android:hint="@string/enter_the_points_to_redeem_the_reward"
+                android:inputType="number" />
 
-                <EditText
-                    android:id="@+id/pointsReward"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:autofillHints="Enter the points to redeem the reward"
-                    android:hint="@string/enter_the_points_to_redeem_the_reward"
-                    android:inputType="number" />
-
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardViewPartnerReward"
+            <EditText
+                android:id="@+id/partnerReward"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardCornerRadius="8dp">
-
-                <EditText
-                    android:id="@+id/partnerReward"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:autofillHints="Enter the partner name"
-                    android:hint="@string/enter_the_partner_name"
-                    android:inputType="text" />
-            </androidx.cardview.widget.CardView>
+                android:layout_height="50dp"
+                android:background="@drawable/custom_edittext"
+                android:layout_marginTop="40dp"
+                android:padding="8dp"
+                android:drawablePadding="8dp"
+                android:textColor="@color/black"
+                android:autofillHints="Enter the partner name"
+                android:hint="@string/enter_the_partner_name"
+                android:inputType="text" />
 
             <Button
                 android:id="@+id/buttonAddReward"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:backgroundTint="@color/purple_500"
-                android:text="Add New Reward"
+                android:text="@string/add_new_reward"
                 android:textSize="18sp"
                 app:cornerRadius="20dp" />
 

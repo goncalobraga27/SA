@@ -50,17 +50,18 @@
                 android:inputType="textEmailAddress"
                 android:enabled="false"/>
             <!-- Role -->
-            <TextView
+            <EditText
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:id="@+id/TextViewRoleProfile"
                 android:background="@drawable/custom_edittext"
                 android:layout_marginTop="20dp"
+                android:inputType="text"
                 android:padding="8dp"
-                android:hint="@string/prompt_role"
                 android:drawablePadding="8dp"
+                android:id="@+id/TextViewRoleProfile"
+                android:hint="@string/prompt_role"
                 android:textColor="@color/black"
-                android:autofillHints="role"
+                android:autofillHints="Role"
                 android:enabled="false"/>
 
             <!-- Points -->
