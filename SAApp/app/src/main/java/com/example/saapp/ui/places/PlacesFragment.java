@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.saapp.CheckPointAdapter;
 import com.example.saapp.databinding.FragmentPlacesBinding;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -43,7 +44,7 @@ public class PlacesFragment extends Fragment {
         binding = FragmentPlacesBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        Button buttonAddNewPlace = binding.buttonAddNewPlace;
+        FloatingActionButton buttonAddNewPlace = binding.buttonAddNewPlace;
         ListView checkpointListView = binding.placesListView;
 
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();

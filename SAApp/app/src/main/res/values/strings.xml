@@ -61,4 +61,10 @@
     <string name="hide_bottom_sheet">Hide Bottom Sheet</string>
     <string name="close_bottom_sheet">Close Bottom Sheet</string>
     <string name="place_address">Place address</string>
+    <string name="nome">Name</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="description">Description</string>
+    <string name="partner">Partner</string>
+    <string name="redeem">Redeem</string>
 </resources>

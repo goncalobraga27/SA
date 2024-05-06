@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 import java.util.Map;
 
@@ -20,8 +22,9 @@ public class CheckPointAdapter extends ArrayAdapter<Map<String, Object>> {
         mCheckpointsList = checkpointsList;
     }
 
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         View listItem = convertView;
         if (listItem == null) {
             listItem = LayoutInflater.from(mContext).inflate(R.layout.place_list_item, parent, false);
@@ -37,10 +40,10 @@ public class CheckPointAdapter extends ArrayAdapter<Map<String, Object>> {
         TextView pontosTextView = listItem.findViewById(R.id.pontosTextView);
 
         // Extraia os valores do checkpoint e defina nos TextViews
-        nomeTextView.setText(String.format("Nome: %s", checkpoint.get("nome")));
-        latitudeTextView.setText(String.format("Latitude: %s", checkpoint.get("latitude")));
-        longitudeTextView.setText(String.format("Longitude %s", checkpoint.get("longitude")));
-        pontosTextView.setText(String.format("Points: %s", checkpoint.get("points")));
+        nomeTextView.setText(String.format("%s", checkpoint.get("nome")));
+        latitudeTextView.setText(String.format("%s", checkpoint.get("latitude")));
+        longitudeTextView.setText(String.format("%s", checkpoint.get("longitude")));
+        pontosTextView.setText(String.format("%s", checkpoint.get("points")));
 
         return listItem;
     }

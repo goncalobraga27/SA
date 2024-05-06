@@ -19,6 +19,7 @@ import com.example.saapp.databinding.FragmentRewardsBinding;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -42,7 +43,7 @@ public class RewardsFragment extends Fragment {
             binding = FragmentRewardsBinding.inflate(inflater, container, false);
             View root = binding.getRoot();
 
-            Button buttonAddNewReward = binding.buttonAddNewReward;
+            FloatingActionButton buttonAddNewReward = binding.buttonAddNewReward;
             ListView rewardsListView = binding.rewardsListView;
 
             FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();

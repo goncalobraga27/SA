@@ -53,10 +53,10 @@ public class RewardAdapter extends ArrayAdapter<Map<String, Object>> {
         Button claimRewardButton = listItem.findViewById(R.id.claimRewardButton);
 
         // Extraia os valores do checkpoint e defina nos TextViews
-        rewardName.setText(String.format("Name: %s", reward.get("name")));
-        rewardDescription.setText(String.format("Description: %s", reward.get("description")));
-        rewardPartner.setText(String.format("Partner: %s", reward.get("partner")));
-        rewardPoints.setText(String.format("Points: %s", reward.get("points")));
+        rewardName.setText(String.format("%s", reward.get("name")));
+        rewardDescription.setText(String.format("%s", reward.get("description")));
+        rewardPartner.setText(String.format("%s", reward.get("partner")));
+        rewardPoints.setText(String.format("%s", reward.get("points")));
 
         claimRewardButton.setOnClickListener(new View.OnClickListener() {
             @Override
