@@ -3,13 +3,19 @@ package com.example.saapp.ui.home;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -31,6 +37,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.saapp.BuildConfig;
 import com.example.saapp.CalculaDistancia;
+import com.example.saapp.MainActivity;
 import com.example.saapp.R;
 import com.example.saapp.databinding.FragmentHomeBinding;
 import com.google.android.gms.common.api.ApiException;
@@ -71,7 +78,6 @@ import java.util.concurrent.CompletableFuture;
 public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     public final static int INITIAL_CAMERA_ZOOM = 15;
-    public final static int REQUEST_LOCATION_UPDATES_INTERVAL = 30000;
     public final static List<Place.Field> PLACES_FIELDS = Arrays.asList(
             Place.Field.ID,
             Place.Field.NAME,
@@ -81,57 +87,13 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             Place.Field.RATING);
     private FragmentHomeBinding binding;
     private GoogleMap googleMap;
-    private FusedLocationProviderClient fusedLocationClient;
-    private LocationCallback locationCallback;
-    private LocationRequest locationRequest;
     private Marker currentMarker;
-
-    private final ActivityResultLauncher<String[]> locationPermissionRequest = registerForActivityResult(
-            new ActivityResultContracts.RequestMultiplePermissions(),
-            result -> {
-                Boolean fineLocationGranted = result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false);
-                Boolean coarseLocationGranted = result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false);
-                if (fineLocationGranted != null && fineLocationGranted) {
-                    Log.d("Permissions", "Permissions Granted");
-                    startLocationUpdates();
-                } else if (coarseLocationGranted != null && coarseLocationGranted) {
-                    Log.d("Permissions", "Permissions Granted");
-                    startLocationUpdates();
-                } else {
-                    Log.d("Permissions", "Permissions Denied");
-                    Toast.makeText(requireContext(), "Functionality limited due to no access to location", Toast.LENGTH_LONG);
-                }
-            }
-    );
-
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireContext());
-        locationRequest = new LocationRequest.Builder(REQUEST_LOCATION_UPDATES_INTERVAL).build();
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(@NonNull LocationResult locationResult) {
-                Location lastKnownLocation = locationResult.getLastLocation();
-                if (lastKnownLocation != null) {
-                    Log.i("LocationUpdate", "Latitude: " + lastKnownLocation.getLatitude() + ", Longitude: " + lastKnownLocation.getLongitude());
-                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                    if (user != null) {
-                        storeUserLocation(user, lastKnownLocation.getLongitude(), lastKnownLocation.getLatitude());
-                        calculaPontos(user, lastKnownLocation);
-                    }
-                }
-            }
-        };
-
-        locationPermissionRequest.launch(new String[]{
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-        });
 
         if (!Places.isInitialized()) {
             Places.initialize(requireContext(), BuildConfig.MAPS_API_KEY);
@@ -240,7 +202,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             googleMap.setMyLocationEnabled(true);
 
-            fusedLocationClient.getLastLocation()
+            LocationServices.getFusedLocationProviderClient(requireActivity()).getLastLocation()
                     .addOnSuccessListener(requireActivity(), location -> {
                         if (location != null) {
                             LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
@@ -249,118 +211,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                     });
             putCheckPointsInMap();
         }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (fusedLocationClient != null && locationCallback != null) {
-            fusedLocationClient.removeLocationUpdates(locationCallback);
-        }
-    }
-
-    public void onResume() {
-        super.onResume();
-        startLocationUpdates();
-    }
-
-    private void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
-        }
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-        if (fusedLocationClient != null && locationCallback != null) {
-            fusedLocationClient.removeLocationUpdates(locationCallback);
-        }
-    }
-
-    private void storeUserLocation(FirebaseUser user, double longitude, double latitude) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Map<String, Object> data = new HashMap<>();
-        data.put("latitude", latitude);
-        data.put("longitude", longitude);
-
-        db.collection("users")
-                .document(user.getUid())
-                .collection("user_location")
-                .add(data)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d("LocationUpdate", "Location data saved successfully");
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("LocationUpdate", "Error saving location data: " + e.getMessage());
-                });
-    }
-
-    private void calculaPontos(FirebaseUser user,Location location){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("checkpoints")
-            .get()
-            .addOnSuccessListener(queryDocumentSnapshots -> {
-                for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-                    try {
-                        Double latitude = document.getDouble("latitude");
-                        Double longitude = document.getDouble("longitude");
-                        String idCheckpoint = document.getId();
-                        Double points = document.getDouble("points");
-
-                        if (latitude != null && longitude != null && points!= null) {
-                            double distance = CalculaDistancia.calcularDistanciaEntrePontos(location.getLatitude(), location.getLongitude(), latitude, longitude);
-                            List<String> visitedBy = (List<String>) document.get("visitedBy");
-                            if (visitedBy != null && !visitedBy.contains(user.getUid())) {
-                                if (distance < 0.1) {
-                                    increaseUserPoints(user, points, idCheckpoint);
-                                    showPointsEarnedDialog(points);
-                                }
-                            }
-
-                        }
-                    } catch (Exception e) {
-                        Log.e("LocationsUtils", "Error reading firestore document: " + document.getId(), e);
-                    }
-                }
-            })
-            .addOnFailureListener(e -> {
-                Log.e("LocationUtils", "Error getting places: " + e.getMessage());
-            });
-    }
-
-    public void increaseUserPoints(FirebaseUser user, double points,String idCheckPoint){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users")
-                .document(user.getUid())
-                .update("points", increment(points))
-                .addOnSuccessListener(aVoid -> {
-                    Log.d("LocationUtils", "User points increased successfully.");
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("LocationUtils", "Error increasing user points: " + e.getMessage());
-                });
-        checkpointDone(user,idCheckPoint);
-    }
-
-    public void checkpointDone(FirebaseUser user,String idCheckpoint ){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        db.collection("checkpoints")
-                .document(idCheckpoint)
-                .update("visitedBy",FieldValue.arrayUnion(user.getUid()))
-                .addOnSuccessListener(aVoid -> {
-                    Log.d("SAVE CHECKPOINT STATUS", "Checkpoint done by user!");
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("SAVE CHECKPOINT STATUS", "Error saving checkpoint status: " + e.getMessage());
-                });
-    }
-
-    private static FieldValue increment(double value) {
-        return com.google.firebase.firestore.FieldValue.increment(value);
     }
 
     private void putCheckPointsInMap(){
@@ -392,18 +242,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                     Log.e("AddMarkerError", "Error getting checkpoints: " + task.getException());
                 }
             });
-    }
-
-    private void showPointsEarnedDialog(double pointsEarned) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Congratulations!");
-        builder.setMessage("You earned " + pointsEarned + " points!");
-        builder.setCancelable(false); // Impede que o diálogo seja fechado clicando fora dele
-        builder.setPositiveButton("CLOSE", (dialog, which) -> {
-            dialog.dismiss();
-        });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
     }
 
 }
