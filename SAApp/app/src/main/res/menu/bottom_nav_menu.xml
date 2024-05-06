@@ -11,13 +11,13 @@
         android:title="@string/title_places" />
 
     <item
-        android:id="@+id/navigation_profile"
-        android:icon="@drawable/ic_profile_black_24dp"
-        android:title="@string/title_profile" />
-
-    <item
         android:id="@+id/navigation_rewards"
         android:icon="@drawable/ic_rewards_black_24dp"
         android:title="@string/rewards" />
+
+    <item
+        android:id="@+id/navigation_profile"
+        android:icon="@drawable/ic_profile_black_24dp"
+        android:title="@string/title_profile" />
 
 </menu>

@@ -39,6 +39,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -69,7 +70,7 @@ import java.util.concurrent.CompletableFuture;
 public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     public final static int INITIAL_CAMERA_ZOOM = 15;
-    public final static int REQUEST_LOCATION_UPDATES_INTERVAL = 1000 * 10;
+    public final static int REQUEST_LOCATION_UPDATES_INTERVAL = 30000;
     public final static List<Place.Field> PLACES_FIELDS = Arrays.asList(
             Place.Field.ID,
             Place.Field.NAME,
@@ -119,11 +120,10 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 if (lastKnownLocation != null) {
                     Log.i("LocationUpdate", "Latitude: " + lastKnownLocation.getLatitude() + ", Longitude: " + lastKnownLocation.getLongitude());
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                    storeUserLocation(user,lastKnownLocation.getLongitude(), lastKnownLocation.getLatitude());
-                    calculaPontoMaisProxima(lastKnownLocation);
-                    calculaPontos(user,lastKnownLocation);
-
-
+                    if (user != null) {
+                        storeUserLocation(user, lastKnownLocation.getLongitude(), lastKnownLocation.getLatitude());
+                        calculaPontos(user, lastKnownLocation);
+                    }
                 }
             }
         };
@@ -175,7 +175,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 }
             });
         }
-        putCheckPointsInMap();
     }
 
     private void showBottomSheetPlaceDetails(Place place) {
@@ -248,6 +247,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                             googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, INITIAL_CAMERA_ZOOM));
                         }
                     });
+            putCheckPointsInMap();
         }
     }
 
@@ -298,58 +298,33 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 });
     }
 
-    private void calculaPontoMaisProxima (Location location){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("checkpoints")
-            .get()
-            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            if (document.contains("latitude") && document.contains("longitude")) {
-                                double pontoLatitude = document.getDouble("latitude");
-                                double pontoLongitude = document.getDouble("longitude");
-                                String idCheckPoint = document.getId();
-
-                                double distancia = CalculaDistancia.calcularDistanciaEntrePontos(location.getLatitude(), location.getLongitude(), pontoLatitude, pontoLongitude);
-
-                                checkUserVisitedCheckpoint(FirebaseAuth.getInstance().getCurrentUser(),idCheckPoint).addOnSuccessListener(exists ->{
-                                    if (!exists) {
-                                        if (distancia <= 3) {
-                                            String nomePonto = document.getString("nome");
-                                            Toast.makeText(requireContext(), "CHECKPOINT: " + nomePonto, Toast.LENGTH_LONG).show();
-
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    } else {
-                        Log.d("Firestore", "Erro ao obter o documento: ", task.getException());
-                    }
-                }
-            });
-    }
-
     private void calculaPontos(FirebaseUser user,Location location){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("checkpoints")
             .get()
             .addOnSuccessListener(queryDocumentSnapshots -> {
                 for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-                    double placeLatitude = document.getDouble("latitude");
-                    double placeLongitude = document.getDouble("longitude");
-                    String idCheckpoint = document.getId();
-                    double distancia = CalculaDistancia.calcularDistanciaEntrePontos(location.getLatitude(), location.getLongitude(), placeLatitude, placeLongitude);
-                    checkUserVisitedCheckpoint(FirebaseAuth.getInstance().getCurrentUser(),idCheckpoint).addOnSuccessListener(exists -> {
-                        if (!exists) {
-                            if (distancia < 0.1) {
-                                increaseUserPoints(user, document.getDouble("points"), placeLatitude, placeLongitude,idCheckpoint);
-                                showPointsEarnedDialog(document.getDouble("points"));
-                            }
+                    try {
+                        Double latitude = document.getDouble("latitude");
+                        Double longitude = document.getDouble("longitude");
+                        String idCheckpoint = document.getId();
+                        Double points = document.getDouble("points");
+
+                        if (latitude != null && longitude != null && points!= null) {
+                            double distance = CalculaDistancia.calcularDistanciaEntrePontos(location.getLatitude(), location.getLongitude(), latitude, longitude);
+                            checkUserVisitedCheckpoint(FirebaseAuth.getInstance().getCurrentUser(), idCheckpoint).addOnSuccessListener(exists -> {
+                                if (!exists) {
+                                    if (distance < 0.1) {
+                                        increaseUserPoints(user, points, latitude, longitude, idCheckpoint);
+                                        showPointsEarnedDialog(points);
+                                    }
+                                }
+                            });
                         }
-                    });
+
+                    } catch (Exception e) {
+                        Log.e("LocationsUtils", "Error reading firestore document: " + document.getId(), e);
+                    }
                 }
             })
             .addOnFailureListener(e -> {
@@ -423,35 +398,38 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             .addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     for (DocumentSnapshot document : task.getResult()) {
-                        double latitude = document.getDouble("latitude");
-                        double longitude = document.getDouble("longitude");
+                        try {
+                            Double latitude = document.getDouble("latitude");
+                            Double longitude = document.getDouble("longitude");
+                            String name = document.getString("nome");
 
-                        Place place = Place.builder().setLatLng(new LatLng(latitude,longitude)).build();
-
-                        if (place.getLatLng() != null) {
-                            MarkerOptions markerOptions = new MarkerOptions();
-                            markerOptions.position(place.getLatLng());
-                            markerOptions.title(place.getName());
-                            googleMap.addMarker(markerOptions);
+                            if (latitude != null && longitude != null && name != null) {
+                                MarkerOptions markerOptions = new MarkerOptions();
+                                markerOptions.position(new LatLng(latitude, longitude));
+                                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                                markerOptions.title(name);
+                                googleMap.addMarker(markerOptions);
+                            } else {
+                                Log.e("AddMarkerError", "One or more fields are null in the document: " + document.getId());
+                            }
+                        } catch (Exception e) {
+                            Log.e("AddMarkerError", "Error parsing document: " + document.getId(), e);
                         }
                     }
                 } else {
-                    Log.e("ADD MAP ERROR", "Error getting checkpoints: " + task.getException());
+                    Log.e("AddMarkerError", "Error getting checkpoints: " + task.getException());
                 }
             });
     }
 
     private void showPointsEarnedDialog(double pointsEarned) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Parabéns!");
-        builder.setMessage("Você ganhou " + pointsEarned + " pontos!");
+        builder.setTitle("Congratulations!");
+        builder.setMessage("You earned " + pointsEarned + " points!");
         builder.setCancelable(false); // Impede que o diálogo seja fechado clicando fora dele
-
-        builder.setPositiveButton("Fechar", (dialog, which) -> {
-            // Faça qualquer coisa que você deseja quando o usuário clicar em OK
-            dialog.dismiss(); // Fecha o diálogo
+        builder.setPositiveButton("CLOSE", (dialog, which) -> {
+            dialog.dismiss();
         });
-
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }

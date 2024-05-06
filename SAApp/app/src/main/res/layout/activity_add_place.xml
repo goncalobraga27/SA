@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:id="@+id/fragment_admin"
+    android:id="@+id/activity_add_place"
     tools:context=".AddPlaceActivity">
 
     <androidx.appcompat.widget.Toolbar
@@ -23,16 +23,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="30dp"
-        android:layout_marginTop="88dp"
         app:cardCornerRadius="30dp"
         app:cardElevation="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        tools:layout_editor_absoluteX="60dp">
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="595dp"
+            android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
             android:background="@drawable/custom_edittext"
             android:orientation="vertical"
@@ -45,21 +43,20 @@
                 android:textAlignment="center"
                 android:textColor="@color/purple_500"
                 android:textSize="36sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"/>
 
             <!-- Place -->
-            <EditText
-                android:id="@+id/editTextLocation"
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/autocomplete_fragment"
+                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:autofillHints="Enter Location"
                 android:background="@drawable/custom_edittext"
                 android:layout_marginTop="40dp"
                 android:padding="8dp"
                 android:drawablePadding="8dp"
                 android:textColor="@color/black"
-                android:hint="@string/enter_location"
-                android:inputType="text" />
+                />
 
             <EditText
                 android:id="@+id/editTextPoints"
@@ -96,19 +93,6 @@
                 android:text="@string/add_places"
                 android:textSize="18sp"
                 app:cornerRadius="20dp" />
-
-            <TextView
-                android:id="@+id/textViewPlaceDetails"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="@+id/addPlaceCard"
-                android:background="@drawable/custom_edittext"
-                android:padding="16dp"
-                android:textColor="@android:color/black"
-                android:textSize="30sp"
-                android:visibility="invisible"
-                tools:ignore="MissingConstraints" />
-
 
         </LinearLayout>
 

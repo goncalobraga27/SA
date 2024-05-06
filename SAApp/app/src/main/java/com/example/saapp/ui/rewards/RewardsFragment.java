@@ -36,65 +36,65 @@ public class RewardsFragment extends Fragment {
 
     private FragmentRewardsBinding binding;
 
-public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                                 ViewGroup container, Bundle savedInstanceState) {
 
-        binding = FragmentRewardsBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
+            binding = FragmentRewardsBinding.inflate(inflater, container, false);
+            View root = binding.getRoot();
 
-        Button buttonAddNewReward = binding.buttonAddNewReward;
-        ListView rewardsListView = binding.rewardsListView;
+            Button buttonAddNewReward = binding.buttonAddNewReward;
+            ListView rewardsListView = binding.rewardsListView;
 
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+            FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            FirebaseUser currentUser = firebaseAuth.getCurrentUser();
 
-        if (currentUser != null) {
-            db.collection("users").document(currentUser.getUid()).get().addOnSuccessListener(documentSnapshot -> {
-                if (documentSnapshot.exists()) {
-                    String role = documentSnapshot.getString("role");
-                    if (role != null && role.equals("admin")) {
-                        buttonAddNewReward.setVisibility(View.VISIBLE);
-                    } else {
-                        buttonAddNewReward.setVisibility(View.INVISIBLE);
+            if (currentUser != null) {
+                db.collection("users").document(currentUser.getUid()).get().addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String role = documentSnapshot.getString("role");
+                        if (role != null && role.equals("admin")) {
+                            buttonAddNewReward.setVisibility(View.VISIBLE);
+                        } else {
+                            buttonAddNewReward.setVisibility(View.INVISIBLE);
+                        }
                     }
-                }
-            }).addOnFailureListener(e -> Log.e("UserRole", "Error getting user role: " + e.getMessage()));
-        }
-        
-        binding.buttonAddNewReward.setOnClickListener(v -> startActivity(new Intent(getActivity(), AddRewardActivity.class)));
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        getPartnersByUser(user)
-            .addOnSuccessListener(partners -> {
-                if (!partners.isEmpty()) {
-                    CollectionReference rewardsRef = db.collection("rewards");
-                    rewardsRef.whereIn("partner", partners)
-                            .get()
-                            .addOnSuccessListener(queryDocumentSnapshots -> {
-                                List<Map<String, Object>> rewardsList = new ArrayList<>();
+                }).addOnFailureListener(e -> Log.e("UserRole", "Error getting user role: " + e.getMessage()));
+            }
 
-                                for (DocumentSnapshot document : queryDocumentSnapshots) {
-                                    Map<String, Object> reward = document.getData();
-                                    rewardsList.add(reward);
-                                }
+            binding.buttonAddNewReward.setOnClickListener(v -> startActivity(new Intent(getActivity(), AddRewardActivity.class)));
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            getPartnersByUser(user)
+                .addOnSuccessListener(partners -> {
+                    if (!partners.isEmpty()) {
+                        CollectionReference rewardsRef = db.collection("rewards");
+                        rewardsRef.whereIn("partner", partners)
+                                .get()
+                                .addOnSuccessListener(queryDocumentSnapshots -> {
+                                    List<Map<String, Object>> rewardsList = new ArrayList<>();
 
-                                RewardAdapter adapter = new RewardAdapter(getContext(), rewardsList);
-                                rewardsListView.setAdapter(adapter);
-                            })
-                            .addOnFailureListener(e -> {
-                                // Trate falhas ao buscar as recompensas filtradas
-                                Log.e("PlacesFragment", "Erro ao obter as recompensas filtradas: " + e.getMessage());
-                            });
-                }
-            })
-            .addOnFailureListener(e -> {
-                // Trate falhas ao buscar os parceiros do usuário
-                Log.e("Erro", "Erro na obtenção dos partners: " + e.getMessage());
-            });
+                                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                                        Map<String, Object> reward = document.getData();
+                                        rewardsList.add(reward);
+                                    }
+
+                                    RewardAdapter adapter = new RewardAdapter(getContext(), rewardsList);
+                                    rewardsListView.setAdapter(adapter);
+                                })
+                                .addOnFailureListener(e -> {
+                                    // Trate falhas ao buscar as recompensas filtradas
+                                    Log.e("PlacesFragment", "Erro ao obter as recompensas filtradas: " + e.getMessage());
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Trate falhas ao buscar os parceiros do usuário
+                    Log.e("Erro", "Erro na obtenção dos partners: " + e.getMessage());
+                });
 
 
-        return root;
-}
+            return root;
+    }
 
     @Override
     public void onDestroyView() {
