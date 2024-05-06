@@ -2,16 +2,21 @@ package com.example.saapp.ui.home;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -41,10 +46,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
@@ -58,8 +61,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -77,15 +78,14 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             Place.Field.ADDRESS,
             Place.Field.LAT_LNG,
             Place.Field.PHOTO_METADATAS,
-            Place.Field.TYPES,
-            Place.Field.PHONE_NUMBER,
-            Place.Field.RATING,
-            Place.Field.PRICE_LEVEL);
+            Place.Field.RATING);
     private FragmentHomeBinding binding;
     private GoogleMap googleMap;
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private LocationRequest locationRequest;
+    private Marker currentMarker;
+
     private final ActivityResultLauncher<String[]> locationPermissionRequest = registerForActivityResult(
             new ActivityResultContracts.RequestMultiplePermissions(),
             result -> {
@@ -155,15 +155,17 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
                 @Override
                 public void onPlaceSelected(@NonNull Place place) {
-                    googleMap.clear();
-
                     if (place.getLatLng() != null) {
                         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), INITIAL_CAMERA_ZOOM));
+
+                        if (currentMarker != null) {
+                            currentMarker.remove();
+                        }
 
                         MarkerOptions markerOptions = new MarkerOptions();
                         markerOptions.position(place.getLatLng());
                         markerOptions.title(place.getName());
-                        googleMap.addMarker(markerOptions);
+                        currentMarker = googleMap.addMarker(markerOptions);
 
                         showBottomSheetPlaceDetails(place);
                     }
@@ -178,28 +180,20 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void showBottomSheetPlaceDetails(Place place) {
-        View bottomSheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_place_details, null);
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
-        bottomSheetDialog.setContentView(bottomSheetView);
 
-        TextView placeNameTextView = bottomSheetView.findViewById(R.id.place_name);
-        TextView placeAddressTextView = bottomSheetView.findViewById(R.id.place_address);
-        TextView placePhoneNumberTextView = bottomSheetView.findViewById(R.id.place_phone_number);
-        TextView placeRatingTextView = bottomSheetView.findViewById(R.id.place_rating);
-        TextView placePriceLevelTextView = bottomSheetView.findViewById(R.id.place_price_level);
-        TextView placeTypesTextView = bottomSheetView.findViewById(R.id.place_types);
-        ImageView placePhotoImageView = bottomSheetView.findViewById(R.id.place_photo);
+
+        final Dialog bottomSheetDialog = new Dialog(requireContext());
+        bottomSheetDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        bottomSheetDialog.setContentView(R.layout.bottom_sheet_place_details);
+
+        TextView placeNameTextView = bottomSheetDialog.findViewById(R.id.place_name);
+        TextView placeAddressTextView = bottomSheetDialog.findViewById(R.id.place_address);
+        TextView placeRatingTextView = bottomSheetDialog.findViewById(R.id.place_rating);
+        ImageView placePhotoImageView = bottomSheetDialog.findViewById(R.id.place_photo);
 
         placeNameTextView.setText(place.getName());
         placeAddressTextView.setText(place.getAddress());
-        placePhoneNumberTextView.setText(place.getPhoneNumber());
-        placeRatingTextView.setText(requireContext().getString(R.string.rating, place.getRating()));
-        placePriceLevelTextView.setText(requireContext().getString(R.string.price_level, place.getPriceLevel()));
-
-        if (place.getPlaceTypes() != null) {
-            List<String> typesList = place.getPlaceTypes();
-            placeTypesTextView.setText(TextUtils.join(", ", typesList));
-        }
+        placeRatingTextView.setText(place.getRating() != null ? place.getRating().toString() : "No rating");
 
         if (place.getPhotoMetadatas() != null && !place.getPhotoMetadatas().isEmpty()) {
             PhotoMetadata photoMetadata = place.getPhotoMetadatas().get(0);
@@ -219,12 +213,18 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             });
         }
 
-        Button closeButton = bottomSheetView.findViewById(R.id.close_bottom_sheet);
-        closeButton.setOnClickListener(v -> {
+        bottomSheetDialog.findViewById(R.id.cancelButton).setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
         });
 
         bottomSheetDialog.show();
+        Window window = bottomSheetDialog.getWindow();
+        if (window!= null){
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            window.getAttributes().windowAnimations = R.style.DialogAnimation;
+            window.setGravity(Gravity.BOTTOM);
+        }
     }
 
     @Override
@@ -312,16 +312,15 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
                         if (latitude != null && longitude != null && points!= null) {
                             double distance = CalculaDistancia.calcularDistanciaEntrePontos(location.getLatitude(), location.getLongitude(), latitude, longitude);
-                            checkUserVisitedCheckpoint(FirebaseAuth.getInstance().getCurrentUser(), idCheckpoint).addOnSuccessListener(exists -> {
-                                if (!exists) {
-                                    if (distance < 0.1) {
-                                        increaseUserPoints(user, points, latitude, longitude, idCheckpoint);
-                                        showPointsEarnedDialog(points);
-                                    }
+                            List<String> visitedBy = (List<String>) document.get("visitedBy");
+                            if (visitedBy != null && !visitedBy.contains(user.getUid())) {
+                                if (distance < 0.1) {
+                                    increaseUserPoints(user, points, idCheckpoint);
+                                    showPointsEarnedDialog(points);
                                 }
-                            });
-                        }
+                            }
 
+                        }
                     } catch (Exception e) {
                         Log.e("LocationsUtils", "Error reading firestore document: " + document.getId(), e);
                     }
@@ -330,10 +329,9 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             .addOnFailureListener(e -> {
                 Log.e("LocationUtils", "Error getting places: " + e.getMessage());
             });
-
     }
 
-    public void increaseUserPoints(FirebaseUser user, double points,double placeLatitude, double placeLongitude,String idCheckPoint){
+    public void increaseUserPoints(FirebaseUser user, double points,String idCheckPoint){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users")
                 .document(user.getUid())
@@ -358,32 +356,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 })
                 .addOnFailureListener(e -> {
                     Log.e("SAVE CHECKPOINT STATUS", "Error saving checkpoint status: " + e.getMessage());
-                });
-    }
-
-    public Task<Boolean> checkUserVisitedCheckpoint(FirebaseUser user, String checkpointId) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // Consulta o documento de checkpoint específico
-        return db.collection("checkpoints")
-                .document(checkpointId)
-                .get()
-                .continueWith(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot documentSnapshot = task.getResult();
-                        if (documentSnapshot.exists()) {
-                            List<String> visitedBy = (List<String>) documentSnapshot.get("visitedBy");
-                            if (visitedBy != null && visitedBy.contains(user.getUid())) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        } else {
-                            throw new RuntimeException("Checkpoint " + checkpointId + " does not exist.");
-                        }
-                    } else {
-                        throw task.getException();
-                    }
                 });
     }
 

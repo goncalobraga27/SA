@@ -36,7 +36,7 @@
     <string name="place_name">Place Name</string>
     <string name="address">Address</string>
     <string name="phone_number">Phone Number</string>
-    <string name="rating">Rating: %1$.1f</string>
+    <string name="rating">Rating</string>
     <string name="price_level">Price Level: %1$d</string>
     <string name="types">Types</string>
     <string name="place_photo">place photo</string>
@@ -58,4 +58,7 @@
     <string name="rewards">Rewards</string>
     <string name="enter_partner">Enter Partner</string>
     <string name="add_new_reward">Add New Reward</string>
+    <string name="hide_bottom_sheet">Hide Bottom Sheet</string>
+    <string name="close_bottom_sheet">Close Bottom Sheet</string>
+    <string name="place_address">Place address</string>
 </resources>
