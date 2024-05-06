@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<svg width="512px" height="512px" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="100%" height="100%" fill="#3F51B5"/> <!-- Altere a cor de fundo -->
+    <!-- Map icon as the base -->
+    <path d="M160 400 L352 400 L352 160 L160 160 Z" fill="#FFFFFF"/>
+    <circle cx="256" cy="280" r="80" fill="#4CAF50"/> <!-- Altere a cor do círculo -->
+    <!-- GPS signal rings -->
+    <circle cx="256" cy="280" r="120" fill="none" stroke="#FFFFFF" stroke-width="8"/>
+    <circle cx="256" cy="280" r="140" fill="none" stroke="#FFFFFF" stroke-width="8"/>
+    <!-- Star to represent points -->
+    <polygon points="256,180 273,240 336,240 288,276 305,336 256,300 207,336 224,276 176,240 239,240" fill="#FFEB3B"/> <!-- Altere a cor do polígono -->
+    <!-- Shadow effect -->
+    <filter id="shadow">
+        <feDropShadow dx="1" dy="1" stdDeviation="2"/>
+    </filter>
+    <g filter="url(#shadow)">
+        <path d="M160 400 L352 400 L352 160 L160 160 Z" fill="#FFFFFF"/>
+        <circle cx="256" cy="280" r="80" fill="#4CAF50"/>
+        <circle cx="256" cy="280" r="120" fill="none" stroke="#FFFFFF" stroke-width="8"/>
+        <circle cx="256" cy="280" r="140" fill="none" stroke="#FFFFFF" stroke-width="8"/>
+        <polygon points="256,180 273,240 336,240 288,276 305,336 256,300 207,336 224,276 176,240 239,240" fill="#FFEB3B"/>
+    </g>
+</svg>
