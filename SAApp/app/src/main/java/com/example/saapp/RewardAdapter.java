@@ -1,5 +1,6 @@
 package com.example.saapp;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -28,6 +30,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class RewardAdapter extends ArrayAdapter<Map<String, Object>> {
     private Context mContext;
@@ -75,29 +78,52 @@ public class RewardAdapter extends ArrayAdapter<Map<String, Object>> {
                     // Obtém a referência do documento do usuário no Firestore
                     DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(currentUser.getUid());
                     long rewardPoints = (long) reward.get("points");
+                    userPoints(currentUser, new OnPointsReceivedListener() {
+                        @Override
+                        public void onPointsReceived(int points) {
+                            if (points >= rewardPoints) {
+                                List<String> ownedByList = (List<String>) reward.get("ownedBy");
+                                ownedByList.add(currentUser.getUid());
+                                reward.put("ownedBy", ownedByList);
+                                // Atualiza a lista de recompensas do usuário no Firestore
+                                userRef.update("rewardList", FieldValue.arrayUnion(reward), "points", FieldValue.increment(-rewardPoints))
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                // Exibe uma mensagem de sucesso
+                                                Toast.makeText(getContext(), "Recompensa reclamada com sucesso!", Toast.LENGTH_SHORT).show();
 
-                    List<String> ownedByList = (List<String>) reward.get("ownedBy");
-                    ownedByList.add(currentUser.getUid());
-                    reward.put("ownedBy",ownedByList);
-                    // Atualiza a lista de recompensas do usuário no Firestore
-                    userRef.update("rewardList", FieldValue.arrayUnion(reward),"points",FieldValue.increment(-rewardPoints))
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                // Exibe uma mensagem de sucesso
-                                Toast.makeText(getContext(), "Recompensa reclamada com sucesso!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                // Exibe uma mensagem de erro em caso de falha
+                                                Log.e("Erro", "Erro ao adicionar recompensa à lista do usuário: " + e.getMessage());
+                                                Toast.makeText(getContext(), "Erro ao reclamar recompensa. Tente novamente mais tarde.", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                updateRewards(reward);
+                            }
+                            else{
+                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                                builder.setTitle("Points!");
+                                builder.setMessage("User points are not enough.");
+                                builder.setCancelable(false);
+                                builder.setPositiveButton("CLOSE", (dialog, which) -> {
+                                    dialog.dismiss();
+                                });
+                                AlertDialog alertDialog = builder.create();
+                                alertDialog.show();
+                            }
+                        }
 
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                // Exibe uma mensagem de erro em caso de falha
-                                Log.e("Erro", "Erro ao adicionar recompensa à lista do usuário: " + e.getMessage());
-                                Toast.makeText(getContext(), "Erro ao reclamar recompensa. Tente novamente mais tarde.", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    updateRewards(reward);
+                        @Override
+                        public void onError(Exception e) {
+                            Log.d("RewardAdapter","Erro no RewardAdapter");
+                        }
+                    });
+
                 }
             }
         });
@@ -137,6 +163,43 @@ public class RewardAdapter extends ArrayAdapter<Map<String, Object>> {
                         }
                     }
                 });
+    }
+    public void userPoints(FirebaseUser user, OnPointsReceivedListener listener) {
+        // Obtém uma instância do Firestore
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Obtém a referência para o documento do usuário
+        DocumentReference userRef = db.collection("users").document(user.getUid());
+
+        // Busca o documento do usuário de forma assíncrona
+        userRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    // O documento do usuário existe, agora podemos obter os pontos
+                    Long pontos = document.getLong("points");
+                    if (pontos != null) {
+                        // Retorna os pontos do usuário através do listener
+                        listener.onPointsReceived(pontos.intValue());
+                    } else {
+                        // Se o campo "points" não existir ou for nulo
+                        listener.onError(new IllegalStateException("O campo 'points' não foi encontrado ou é nulo."));
+                    }
+                } else {
+                    // Se o documento do usuário não existir
+                    listener.onError(new IllegalStateException("O documento do usuário não foi encontrado."));
+                }
+            } else {
+                // Se ocorrer um erro ao buscar o documento
+                listener.onError(task.getException());
+            }
+        });
+    }
+
+
+    public interface OnPointsReceivedListener {
+        void onPointsReceived(int points);
+        void onError(Exception e);
     }
 
 }
