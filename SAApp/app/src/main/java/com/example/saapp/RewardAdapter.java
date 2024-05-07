@@ -5,7 +5,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
@@ -13,15 +12,20 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,6 +75,10 @@ public class RewardAdapter extends ArrayAdapter<Map<String, Object>> {
                     // Obtém a referência do documento do usuário no Firestore
                     DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(currentUser.getUid());
                     long rewardPoints = (long) reward.get("points");
+
+                    List<String> ownedByList = (List<String>) reward.get("ownedBy");
+                    ownedByList.add(currentUser.getUid());
+                    reward.put("ownedBy",ownedByList);
                     // Atualiza a lista de recompensas do usuário no Firestore
                     userRef.update("rewardList", FieldValue.arrayUnion(reward),"points",FieldValue.increment(-rewardPoints))
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -89,12 +97,46 @@ public class RewardAdapter extends ArrayAdapter<Map<String, Object>> {
                                 Toast.makeText(getContext(), "Erro ao reclamar recompensa. Tente novamente mais tarde.", Toast.LENGTH_SHORT).show();
                             }
                         });
+                    updateRewards(reward);
                 }
             }
         });
 
 
         return listItem;
+    }
+
+    public void updateRewards(Map<String, Object> reward){
+        CollectionReference rewardsRef = FirebaseFirestore.getInstance().collection("rewards");
+        rewardsRef.whereEqualTo("name", reward.get("name"))
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                // Obtém o ID do documento
+                                String idDocumento = document.getId();
+
+                                // Atualiza os campos desejados do documento
+                                rewardsRef.document(idDocumento)
+                                        .update(reward)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> updateTask) {
+                                                if (updateTask.isSuccessful()) {
+                                                    Log.d("RewardAdapter", "Atualização realizada com sucesso");
+                                                } else {
+                                                    Log.e("RewardAdapter", "Erro ao atualizar documento", updateTask.getException());
+                                                }
+                                            }
+                                        });
+                            }
+                        } else {
+                            Log.e("RewardAdapter", "Erro ao buscar documento", task.getException());
+                        }
+                    }
+                });
     }
 
 }

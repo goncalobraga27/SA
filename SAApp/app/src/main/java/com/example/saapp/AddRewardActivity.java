@@ -12,6 +12,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,6 +62,7 @@ public class AddRewardActivity extends AppCompatActivity {
         reward.put("description", rewardDescription);
         reward.put("points", rewardPoints);
         reward.put("partner", rewardPartner);
+        reward.put("ownedBy",new ArrayList<>());
         db.collection("rewards")
                 .add(reward)
                 .addOnSuccessListener(documentReference -> {

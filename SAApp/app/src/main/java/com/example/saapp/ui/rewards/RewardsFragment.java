@@ -74,11 +74,13 @@ public class RewardsFragment extends Fragment {
                                 .get()
                                 .addOnSuccessListener(queryDocumentSnapshots -> {
                                     List<Map<String, Object>> rewardsList = new ArrayList<>();
-
                                     for (DocumentSnapshot document : queryDocumentSnapshots) {
                                         Map<String, Object> reward = document.getData();
                                         if (reward != null) {
-                                            rewardsList.add(reward);
+                                            List<String> ownedBy = (List<String>) reward.get("ownedBy");
+                                            if (ownedBy == null || !ownedBy.contains(user.getUid())) {
+                                                rewardsList.add(reward);
+                                            }
                                         }
                                     }
 
