@@ -83,9 +83,10 @@ public class RewardsFragment extends Fragment {
                                             }
                                         }
                                     }
-
-                                    RewardAdapter adapter = new RewardAdapter(getContext(), rewardsList);
-                                    rewardsListView.setAdapter(adapter);
+                                    if (!rewardsList.isEmpty()) {
+                                        RewardAdapter adapter = new RewardAdapter(getContext(), rewardsList);
+                                        rewardsListView.setAdapter(adapter);
+                                    }
                                 })
                                 .addOnFailureListener(e -> {
                                     Log.e("PlacesFragment", "Erro ao obter as recompensas filtradas: " + e.getMessage());
