@@ -23,6 +23,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -76,14 +77,15 @@ public class RewardsFragment extends Fragment {
 
                                     for (DocumentSnapshot document : queryDocumentSnapshots) {
                                         Map<String, Object> reward = document.getData();
-                                        rewardsList.add(reward);
+                                        if (reward != null) {
+                                            rewardsList.add(reward);
+                                        }
                                     }
 
                                     RewardAdapter adapter = new RewardAdapter(getContext(), rewardsList);
                                     rewardsListView.setAdapter(adapter);
                                 })
                                 .addOnFailureListener(e -> {
-                                    // Trate falhas ao buscar as recompensas filtradas
                                     Log.e("PlacesFragment", "Erro ao obter as recompensas filtradas: " + e.getMessage());
                                 });
                     }
@@ -119,11 +121,9 @@ public class RewardsFragment extends Fragment {
                                 partners.add(partner);
                             }
                         }
-                        return partners; // Retorna a lista de parceiros
+                        return partners;
                     } else {
-                        // Operação falhou, retorna uma lista vazia ou lança uma exceção
                         return new ArrayList<>();
-                        // Ou você pode lançar a exceção: throw task.getException();
                     }
                 });
     }
