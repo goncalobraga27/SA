@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
                                         increaseUserPoints(user, points, idCheckpoint);
                                         showPointsEarnedDialog(points);
                                     }
-                                    if (distance < 0.3) {
+                                    if (distance < 2) {
                                         Log.i("LocationsUtils", "You are near " + name + "!");
                                         showNotification("Near Place", name);
                                     }
